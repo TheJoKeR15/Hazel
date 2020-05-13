@@ -24,7 +24,12 @@ private:
 
 	Hazel::Ref<Hazel::Texture2D> m_Texture, m_ChernoLogoTexture;
 
-	Hazel::OrthographicCameraController m_CameraController;
+	Hazel::CameraController m_CameraController;
 	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.8f };
+
+	float m_modelRotation = 0.f;
+	glm::vec3 RotationAxis = glm::vec3(0.f, 0.f, 0.f);
+
+	Hazel::Ref<Hazel::Shader> MainShader;
 };
 
