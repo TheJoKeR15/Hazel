@@ -10,7 +10,7 @@ namespace Hazel {
 	public:
 		OpenGLVertexBuffer(uint32_t size);
 		OpenGLVertexBuffer(float* vertices, uint32_t size);
-		OpenGLVertexBuffer(std::vector<Vertex*> vertices);
+		OpenGLVertexBuffer(std::vector<Vertex>& vertices);
 
 		virtual ~OpenGLVertexBuffer();
 
@@ -30,6 +30,7 @@ namespace Hazel {
 	{
 	public:
 		OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
+		OpenGLIndexBuffer(std::vector<uint32_t> indices, uint32_t count);
 		virtual ~OpenGLIndexBuffer();
 
 		virtual void Bind() const;

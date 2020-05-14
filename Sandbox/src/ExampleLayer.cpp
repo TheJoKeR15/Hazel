@@ -5,9 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "assimp/Importer.hpp"			// C++ importer interface
-#include "assimp/scene.h"          // Output data structure
-#include "assimp/postprocess.h"    // Post processing flags
+
 
 ExampleLayer::ExampleLayer() 
 	: Layer("ExampleLayer"), m_CameraController(1280.0f / 720.0f, glm::vec3(0.f,0.f,5.f))
@@ -129,12 +127,13 @@ ExampleLayer::ExampleLayer()
 	Hazel::Scene* MyScene = new Hazel::Scene();
 	MyScene->Initialize();
 
-	auto Model = ImportAsset("assets/models/suzane.obj");
+	m_Light = new Hazel::Light();
 	
-	
+	m_Model = new Hazel::Model("assets/models/Cube.obj");
+
 	MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
 	
-	m_Texture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
+	m_Texture = Hazel::Texture2D::Create("assets/textures/Check.png");
 	m_Texture->Bind(0);
 
 	MainShader->SetInt("u_Texture", 0);
@@ -163,72 +162,32 @@ void ExampleLayer::OnUpdate(Hazel::Timestep ts)
 
 	Hazel::Renderer::BeginScene(m_CameraController.GetCamera());
 
-	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f));
-
-	//m_FlatColorShader->Bind();
-	//m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
-
+	glm::mat4 scale = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
+		
 	
-	//Front
 	m_Texture->Bind(0);
-	glm::vec3 pos(0.f, 0.f, 0.5f);
-	m_SquareColor = glm::vec3(0.8f, 0.f, 0.f);
-	//m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
-	MainShader->SetFloat3("u_Color", m_SquareColor);
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) *  scale;
-	Hazel::Renderer::Submit(MainShader, m_SquareVA, transform);
 
-	//right
-	m_SquareColor = glm::vec3(0.2f, 0.8f, 0.f);
-	//m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
-	transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f,0.f,0.f)) * glm::rotate(glm::mat4(1.f),glm::radians(-90.f), glm::vec3(0.f, 1.f, 0.f)) * scale;
-	Hazel::Renderer::Submit(MainShader, m_SquareVA, transform);
 
-	//left
-	m_SquareColor = glm::vec3(0.0f, 0.f, 0.8f);
-	//m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
-	transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0.f, 0.f)) * glm::rotate(glm::mat4(1.f), glm::radians(+90.f), glm::vec3(0.f, 1.f, 0.f)) * scale;
-	Hazel::Renderer::Submit(MainShader, m_SquareVA, transform);
-
-	//top
-	m_SquareColor = glm::vec3(0.f, 0.4f, 0.f);
-	//m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
-	transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.5f, 0.f)) * glm::rotate(glm::mat4(1.f), glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f)) * scale;
-	Hazel::Renderer::Submit(MainShader, m_SquareVA, transform);
-
-	//bottom
-	m_SquareColor = glm::vec3(0.1f, 0.2f, 0.4f);
-	//m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
-	transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, -0.5f, 0.f)) * glm::rotate(glm::mat4(1.f), glm::radians(+90.f), glm::vec3(1.f, 0.f, 0.f)) * scale;
-	Hazel::Renderer::Submit(MainShader, m_SquareVA, transform);
-
-	//back
-	m_SquareColor = glm::vec3(0.8f, 0.3f, 0.1f);
-	//m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
-	transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, -0.5f)) * glm::rotate(glm::mat4(1.f), glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f)) * scale;
-	Hazel::Renderer::Submit(MainShader, m_SquareVA, transform);
-
-	/*
-	for (int y = 0; y < 20; y++)
+		
+	if (m_Light->bActive)
 	{
-		for (int x = 0; x < 20; x++)
-		{
-			glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
-			glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-			Hazel::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
-		}
+		MainShader->SetFloat("u_LightIntensity", m_Light->Intensity);
+		MainShader->SetFloat("u_LightRadius", m_Light->Radius);
+		MainShader->SetFloat("u_AmbiantLight", AmbiantLight);
+		MainShader->SetFloat3("u_LightPostion", m_Light->position);
+		MainShader->SetFloat3("u_LightColor", m_Light->LightColor);
+		MainShader->Bind();
 	}
-	*/
-	//auto textureShader = m_ShaderLibrary.Get("Texture");
+	if (m_Model && m_Model->bDraw)
+	{
+		m_Model->Draw(MainShader);
+	}
 
-	//m_Texture->Bind();
-	//Hazel::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
-	//m_ChernoLogoTexture->Bind();
-	//Hazel::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+	if (m_Light->bDraw)
+	{
+		m_Light->DrawVizualisationMesh(MainShader);
+	}
 
-	// Triangle
-	// Hazel::Renderer::Submit(m_Shader, m_VertexArray);
-	
 	Hazel::Renderer::EndScene();
 }
 
@@ -236,6 +195,38 @@ void ExampleLayer::OnImGuiRender()
 {
 	
 	ImGui::Begin("Settings");
+		ImGui::Begin("Model");
+
+			ImGui::InputText("Path", m_path, IM_ARRAYSIZE(m_path));
+			if (ImGui::Button("Import"))
+			{
+				if (IM_ARRAYSIZE(m_path) > 0)
+				{
+					ImportModel(m_path);
+				}
+				
+			}
+		ImGui::End();
+
+		ImGui::Begin("Light Properties");
+		ImGui::ColorEdit3("Color", glm::value_ptr(m_Light->LightColor));
+		ImGui::SliderFloat("Intensity", &m_Light->Intensity, -5.f, 5.f);
+		ImGui::SliderFloat("Ambiant", &AmbiantLight, 0.f, 1.f);
+		
+		ImGui::Text("Position");
+		ImGui::SliderFloat("x", &m_Light->position.x, -5.f, 5.f);
+		ImGui::SliderFloat("y", &m_Light->position.y, -5.f, 5.f);
+		ImGui::SliderFloat("z", &m_Light->position.z, -5.f, 5.f);
+		ImGui::Spacing();
+		ImGui::Text("Rotation");
+		ImGui::SliderAngle("Pitch", &m_Light->rotation.x, -90.f, 90.f);
+		ImGui::SliderAngle("Yaw",	&m_Light->rotation.y, -90.f, 90.f);
+		ImGui::SliderAngle("Roll",	&m_Light->rotation.z, -90.f, 90.f);
+		ImGui::Spacing();
+		ImGui::Checkbox("bDraw ", &m_Light->bDraw);
+		ImGui::End();
+		
+
 		ImGui::Begin("Camera Properties");
 		//ImGui::ColorEdit3("Square Color", glm::value_ptr(m_SquareColor));
 		//ImGui::BeginChild("Transform");
@@ -259,13 +250,33 @@ void ExampleLayer::OnImGuiRender()
 			ImGui::SliderFloat("Speed", &m_CameraController.m_CameraTranslationSpeed, 0.f, 8.f);
 		//ImGui::EndChild();
 		//ImGui::End();
+			ImGui::Begin("Model Properites");
+			ImGui::Text("Position");
+			ImGui::SliderFloat("X", &m_Model->position.x, -5.f, 5.f);
+			ImGui::SliderFloat("Y", &m_Model->position.y, -5.f, 5.f);
+			ImGui::SliderFloat("Z", &m_Model->position.z, -5.f, 5.f);
+			ImGui::Spacing();
+			ImGui::Text("Rotation");
+			ImGui::SliderAngle("Pitch", &m_Model->rotation.x, -90.f, 90.f);
+			ImGui::SliderAngle("Yaw", &m_Model->rotation.y, -90.f, 90.f);
+			ImGui::SliderAngle("Roll", &m_Model->rotation.z, -90.f, 90.f);
+			ImGui::Spacing();
+			ImGui::Checkbox("bDraw ", &m_Model->bDraw);
+			ImGui::End();
+
 		ImGui::End();
+
 	ImGui::End();
 }
 
 void ExampleLayer::OnEvent(Hazel::Event& e) 
 {
 	m_CameraController.OnEvent(e);
+}
+
+void ExampleLayer::ImportModel(char* path)
+{
+	*m_Model = Hazel::Model(path);
 }
 
 const aiScene* ExampleLayer::ImportAsset(const std::string& path)

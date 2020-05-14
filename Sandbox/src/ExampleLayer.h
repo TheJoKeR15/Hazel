@@ -18,6 +18,8 @@ public:
 	virtual void OnImGuiRender() override;
 	void OnEvent(Hazel::Event& e) override;
 
+
+	void ImportModel(char*);
 	const aiScene* ImportAsset(const std::string& path);
 
 private:
@@ -37,5 +39,13 @@ private:
 	glm::vec3 RotationAxis = glm::vec3(0.f, 0.f, 0.f);
 
 	Hazel::Ref<Hazel::Shader> MainShader;
+
+	Hazel::Model* m_Model;
+
+	char m_path[50] = { 0 };
+
+	Hazel::Light* m_Light;
+	float AmbiantLight = 0.1f;
+	
 };
 

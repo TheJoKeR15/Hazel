@@ -15,12 +15,17 @@ namespace Hazel {
 	public:
 		
 		std::vector<Vertex>			m_vertices;
-		std::vector<unsigned int>	m_indices;
+		std::vector<uint32_t>	m_indices;
+		glm::mat4 transform;
 		//std::vector<Texture>	m_textures;
 
-		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+		Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
 		
-		void Draw(Shader* shader);
+		void Draw(Hazel::Ref<Hazel::Shader> shader);
+
+		void Draw(Hazel::Ref<Hazel::Shader> shader,glm::mat4 Transform);
+
+		void DrawCube(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform);
 
 	private:
 		//  render data
@@ -29,6 +34,8 @@ namespace Hazel {
 		Hazel::Ref<Hazel::VertexArray> m_VA;
 
 		void setupMesh();
+
+		
 
 	};
 }

@@ -36,6 +36,10 @@
 
 #include "Hazel/Renderer/Scene.h"
 #include "Hazel/Renderer/Material.h"
+
 #include "Hazel/Renderer/Entity.h"
 #include "Hazel/Renderer/Mesh.h"
+#include "Hazel/Renderer/Model.h"
+
+#include "Hazel/Renderer/Light.h"
 // -----------------------------------

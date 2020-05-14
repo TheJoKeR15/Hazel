@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hazel/Core/Core.h"
+#include "Vertex.h"
 
 namespace Hazel {
 
@@ -117,7 +118,7 @@ namespace Hazel {
 
 		static Ref<VertexBuffer> Create(uint32_t size);
 		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
-		//static Ref<VertexBuffer> Create(Vertex* vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(std::vector<Vertex> vertices);
 	};
 
 	// Currently Hazel only supports 32-bit index buffers
@@ -132,6 +133,8 @@ namespace Hazel {
 		virtual uint32_t GetCount() const = 0;
 
 		static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
+
+		static Ref<IndexBuffer> Create(std::vector<uint32_t> indices);
 	};
 
 }

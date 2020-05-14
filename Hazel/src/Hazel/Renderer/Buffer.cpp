@@ -32,17 +32,17 @@ namespace Hazel {
 		return nullptr;
 	}
 
-	//Ref<VertexBuffer> VertexBuffer::Create(Vertex* vertices, uint32_t size)
-	//{
-	//	switch (Renderer::GetAPI())
-	//	{
-	//	case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-	//	case RendererAPI::API::OpenGL:  return CreateRef<OpenGLVertexBuffer>(vertices, size);
-	//	}
+	Ref<VertexBuffer> VertexBuffer::Create(std::vector<Vertex> vertices)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLVertexBuffer>(vertices);
+		}
 
-	//	HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
-	//	return nullptr;
-	//}
+		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
+	}
 
 	Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t size)
 	{
@@ -50,6 +50,18 @@ namespace Hazel {
 		{
 			case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
 			case RendererAPI::API::OpenGL:  return CreateRef<OpenGLIndexBuffer>(indices, size);
+		}
+
+		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
+	}
+
+	Ref<IndexBuffer> IndexBuffer::Create(std::vector<uint32_t> indices)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLIndexBuffer>(indices, indices.size());
 		}
 
 		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
