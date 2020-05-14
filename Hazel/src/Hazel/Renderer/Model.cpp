@@ -11,6 +11,7 @@ namespace Hazel {
 
     void Hazel::Model::Draw(Hazel::Ref<Hazel::Shader> shader)
     {
+        //shader->Setfloat("SpecularStrenght" , )
         RecalculateTransforms();
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader,transform);

@@ -11,6 +11,7 @@ namespace Hazel {
 	public:
 		glm::vec3 BaseColor;
 		float SpecularIntensity;
+		float SpecularExponent;
 		Shader* Shader;
 	};
 }

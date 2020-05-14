@@ -164,18 +164,26 @@ void ExampleLayer::OnUpdate(Hazel::Timestep ts)
 
 	glm::mat4 scale = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
 		
+
+	MainShader->SetFloat3("CameraPosition", m_CameraController.GetCamera().GetPosition());
 	
 	m_Texture->Bind(0);
-
-
 		
 	if (m_Light->bActive)
 	{
 		MainShader->SetFloat("u_LightIntensity", m_Light->Intensity);
 		MainShader->SetFloat("u_LightRadius", m_Light->Radius);
 		MainShader->SetFloat("u_AmbiantLight", AmbiantLight);
-		MainShader->SetFloat3("u_LightPostion", m_Light->position);
+		MainShader->SetFloat3("u_LightPosition", m_Light->position);
 		MainShader->SetFloat3("u_LightColor", m_Light->LightColor);
+		MainShader->SetFloat("SpecularStrenght", SpecularStrenght);
+		MainShader->SetFloat("SpecularExponent", SpecularExponent);
+		MainShader->Bind();
+	}
+	else
+	{
+		MainShader->SetFloat("u_LightIntensity", 0);
+
 		MainShader->Bind();
 	}
 	if (m_Model && m_Model->bDraw)
@@ -196,8 +204,8 @@ void ExampleLayer::OnImGuiRender()
 	
 	ImGui::Begin("Settings");
 		ImGui::Begin("Model");
-
-			ImGui::InputText("Path", m_path, IM_ARRAYSIZE(m_path));
+			
+			ImGui::InputText("Path", m_path, IM_ARRAYSIZE(m_path));ImGui::SameLine();
 			if (ImGui::Button("Import"))
 			{
 				if (IM_ARRAYSIZE(m_path) > 0)
@@ -205,6 +213,20 @@ void ExampleLayer::OnImGuiRender()
 					ImportModel(m_path);
 				}
 				
+			}
+			
+			if (ImGui::Button("Cube"))
+			{
+				ImportModel("assets/models/Cube.obj");
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Suzane"))
+			{
+				ImportModel("assets/models/Suzane.obj");
+			}
+			if (ImGui::Button("Material Viewer"))
+			{
+				ImportModel("assets/models/material_holder.obj");
 			}
 		ImGui::End();
 
@@ -224,6 +246,15 @@ void ExampleLayer::OnImGuiRender()
 		ImGui::SliderAngle("Roll",	&m_Light->rotation.z, -90.f, 90.f);
 		ImGui::Spacing();
 		ImGui::Checkbox("bDraw ", &m_Light->bDraw);
+		ImGui::Checkbox("Active ", &m_Light->bActive);
+		ImGui::End();
+
+		ImGui::Begin("Material Properties");
+		ImGui::ColorEdit3("Color", glm::value_ptr(m_Light->LightColor));
+		ImGui::SliderFloat("Specular Intensity", &SpecularStrenght, 0.f, 1.f);
+		ImGui::SliderFloat("Specular Exponent", &SpecularExponent, 0.f, 256.f);
+
+
 		ImGui::End();
 		
 

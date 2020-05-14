@@ -14,6 +14,11 @@ namespace Hazel {
 		bool bDraw = true;
 
 		Material* Material;
+
+		void SetPosition(glm::vec3 newPos)
+		{
+			position = newPos;
+		};
 		
 		void RecalculateTransforms() {
 		transform = glm::translate(glm::mat4(1.0f), position)

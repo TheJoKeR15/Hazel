@@ -15,7 +15,7 @@ out vec3 v_PositionWS;
 void main()
 {
     gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
-    v_Normal = a_Normal;                      // set ourColor to the input color we got from the vertex data
+    v_Normal = mat3(transpose(inverse(u_Transform))) * a_Normal;                      // set ourColor to the input color we got from the vertex data
     v_TexCoord = a_TexCoord;
     v_PositionWS = vec3(u_Transform * vec4(a_Position, 1.0));
 }    
@@ -24,37 +24,65 @@ void main()
 #version 330 core
 
 
-out vec4 FinalColor;  
+layout (location = 0)out vec4 FinalColor;  
+
 in vec3 v_Color;
 in vec2 v_TexCoord;
 in vec3 v_Normal;
 in vec3 v_PositionWS;
 
-uniform vec3 u_Color;
+//Utility
+uniform vec3 CameraPosition;
+
+//Light Uniforms
 uniform float u_AmbiantLight;
 uniform vec3 u_LightColor;
 uniform vec3 u_LightPosition;
 uniform float u_LightIntensity;
 uniform float u_LightRadius;
+
+// Material Uniforms
 uniform sampler2D u_Texture;
+uniform float SpecularStrenght;
+uniform float SpecularExponent;
+
+//float SpecularExponent = 128;
+//float SpecularStrenght = 1;
   
 void main()
 {
+
+    // DIFFUSE //
     // normalizing the normals
     vec3 Normal = normalize(v_Normal);
 
     // calculating light direction
-    vec3 ldir = normalize(u_LightPosition - v_PositionWS);
+    vec3 LightDir = normalize(u_LightPosition - v_PositionWS);
 
     // calculating light Contribution
-    float l = max(dot(ldir,Normal),0.f);
+    float l = max(dot(Normal,LightDir),0.f);
 
     // Claculating the diffuse Term
-    vec3 Diffuse = l * u_LightColor;
+    vec3 Diffuse = l * u_LightColor * u_LightIntensity;
 
     // Claculating the Ambient Term
-    Vec3 AmbiantLight = vec3(u_AmbiantLight);
+    vec3 AmbiantLight = vec3(u_AmbiantLight);
+
+    // SPECULAR // 
+    // Camera direction 
+    vec3 ViewDirection = normalize(CameraPosition - v_PositionWS);
+
+    // reflection Vector
+    vec3 ReflectionDir = reflect(-LightDir,Normal);
+
+    // Specular Contribution
+    float spec = pow(max(dot(ViewDirection,ReflectionDir),0.0),SpecularExponent);
+
+    vec3 Specular = SpecularStrenght * u_LightColor * spec;
+
+    vec3 Result = ( Specular + Diffuse + AmbiantLight);
     
-    FinalColor = texture(u_Texture, v_TexCoord) * ( Diffuse + AmbiantLight) ;
+    FinalColor = texture(u_Texture, v_TexCoord) * vec4(Result,1.0f);
+    //FinalColor = vec4(u_LightPosition,1.);
 
 }

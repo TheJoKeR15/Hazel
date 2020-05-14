@@ -46,6 +46,8 @@ private:
 
 	Hazel::Light* m_Light;
 	float AmbiantLight = 0.1f;
+	float SpecularStrenght = 1;
+	float SpecularExponent = 32;
 	
 };
 
