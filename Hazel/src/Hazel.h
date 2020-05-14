@@ -3,6 +3,8 @@
 // For use by Hazel applications
 
 #include "Hazel/Core/Core.h"
+//#include "Hazel/Core/CoreRenderer.h"
+
 
 #include "Hazel/Core/Application.h"
 #include "Hazel/Core/Layer.h"
@@ -18,6 +20,7 @@
 
 #include "Hazel/ImGui/ImGuiLayer.h"
 
+
 // ---Renderer------------------------
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Renderer/Renderer2D.h"
@@ -30,4 +33,9 @@
 
 #include "Hazel/Renderer/OrthographicCamera.h"
 #include "Hazel/Renderer/Camera.h"
+
+#include "Hazel/Renderer/Scene.h"
+#include "Hazel/Renderer/Material.h"
+#include "Hazel/Renderer/Entity.h"
+#include "Hazel/Renderer/Mesh.h"
 // -----------------------------------

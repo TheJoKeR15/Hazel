@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Hazel.h"
+#include <string>
+
+
 
 class ExampleLayer : public Hazel::Layer
 {
@@ -14,6 +17,9 @@ public:
 	void OnUpdate(Hazel::Timestep ts) override;
 	virtual void OnImGuiRender() override;
 	void OnEvent(Hazel::Event& e) override;
+
+	const aiScene* ImportAsset(const std::string& path);
+
 private:
 	Hazel::ShaderLibrary m_ShaderLibrary;
 	Hazel::Ref<Hazel::Shader> m_Shader;

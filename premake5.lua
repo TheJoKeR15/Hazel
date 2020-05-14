@@ -23,11 +23,13 @@ IncludeDir["Glad"] = "Hazel/vendor/Glad/include"
 IncludeDir["ImGui"] = "Hazel/vendor/imgui"
 IncludeDir["glm"] = "Hazel/vendor/glm"
 IncludeDir["stb_image"] = "Hazel/vendor/stb_image"
+//IncludeDir["Assimp"] = "Hazel/vendor/Assimp/include"
 
 group "Dependencies"
 	include "Hazel/vendor/GLFW"
 	include "Hazel/vendor/Glad"
 	include "Hazel/vendor/imgui"
+	//include "Hazel/vendor/Assimp"
 
 group ""
 
@@ -51,7 +53,9 @@ project "Hazel"
 		"%{prj.name}/vendor/stb_image/**.h",
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
-		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/glm/glm/**.inl"
+		//"%{prj.name}/vendor/Assimp/**.h",
+		//"%{prj.name}/vendor/Assimp/**.cpp",
 	}
 
 	defines
@@ -69,6 +73,8 @@ project "Hazel"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}"
+		//"%{IncludeDir.Assimp}"
+		
 	}
 
 	links 
@@ -76,7 +82,9 @@ project "Hazel"
 		"GLFW",
 		"Glad",
 		"ImGui",
+		//"Assimp"
 		"opengl32.lib"
+		//"assimp-vc142-mtd.lib"
 	}
 
 	filter "system:windows"

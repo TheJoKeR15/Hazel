@@ -1,9 +1,13 @@
 #include "ExampleLayer.h"
-
+//
 #include "imgui/imgui.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "assimp/Importer.hpp"			// C++ importer interface
+#include "assimp/scene.h"          // Output data structure
+#include "assimp/postprocess.h"    // Post processing flags
 
 ExampleLayer::ExampleLayer() 
 	: Layer("ExampleLayer"), m_CameraController(1280.0f / 720.0f, glm::vec3(0.f,0.f,5.f))
@@ -122,6 +126,11 @@ ExampleLayer::ExampleLayer()
 		)";
 		*/
 
+	Hazel::Scene* MyScene = new Hazel::Scene();
+	MyScene->Initialize();
+
+	auto Model = ImportAsset("assets/models/suzane.obj");
+	
 	
 	MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
 	
@@ -130,20 +139,7 @@ ExampleLayer::ExampleLayer()
 
 	MainShader->SetInt("u_Texture", 0);
 	MainShader->Bind();
-	
-	//m_FlatColorShader = Hazel::Shader::Create("assets/shaders/FlatColor.glsl");
-	
-	//m_FlatColorShader = m_ShaderLibrary.Load("assets/shaders/FlatColor.glsl");
-	//m_FlatColorShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
-	//m_ShaderLibrary.Add("flat",m_FlatColorShader);
-	//m_ShaderLibrary.Load("flat");
-	//m_Texture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
-	//m_ChernoLogoTexture = Hazel::Texture2D::Create("assets/textures/ChernoLogo.png");
-	//m_FlatColorShader = m_ShaderLibrary.Get("Texture");
 
-	//m_Texture->Bind();
-	//m_FlatColorShader->Bind();
-	//m_FlatColorShader->SetInt("u_Texture", 0);
 
 	m_CameraController.GetCamera().SetPosition(glm::vec3(0.f, 0.f, 5.f));
 }
@@ -270,4 +266,30 @@ void ExampleLayer::OnImGuiRender()
 void ExampleLayer::OnEvent(Hazel::Event& e) 
 {
 	m_CameraController.OnEvent(e);
+}
+
+const aiScene* ExampleLayer::ImportAsset(const std::string& path)
+{
+			// Create an instance of the Importer class
+		Assimp::Importer importer;
+		// And have it read the given file with some example postprocessing
+		// Usually - if speed is not the most important aspect for you - you'll 
+		// propably to request more postprocessing than we do in this example.
+		const aiScene* scene = importer.ReadFile(path,
+			aiProcess_CalcTangentSpace |
+			aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_SortByPType);
+
+		// If the import failed, report it
+		if (!scene)
+		{
+			HZ_WARN("Failed to import");
+			return false;
+		}
+		// Now we can access the file's contents. 
+		
+		// We're done. Everything will be cleaned up by the importer destructor
+		return scene;
+	
 }

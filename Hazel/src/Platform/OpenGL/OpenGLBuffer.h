@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hazel/Renderer/Buffer.h"
+#include "Hazel/Core/CoreRenderer.h"
 
 namespace Hazel {
 
@@ -9,6 +10,8 @@ namespace Hazel {
 	public:
 		OpenGLVertexBuffer(uint32_t size);
 		OpenGLVertexBuffer(float* vertices, uint32_t size);
+		OpenGLVertexBuffer(std::vector<Vertex*> vertices);
+
 		virtual ~OpenGLVertexBuffer();
 
 		virtual void Bind() const override;

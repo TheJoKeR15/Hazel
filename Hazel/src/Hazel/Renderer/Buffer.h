@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Hazel/Core/Core.h"
+
 namespace Hazel {
 
 	enum class ShaderDataType
@@ -115,6 +117,7 @@ namespace Hazel {
 
 		static Ref<VertexBuffer> Create(uint32_t size);
 		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
+		//static Ref<VertexBuffer> Create(Vertex* vertices, uint32_t size);
 	};
 
 	// Currently Hazel only supports 32-bit index buffers
