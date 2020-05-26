@@ -2,17 +2,21 @@
 
 #include "Hazel/Core/Core.h"
 #include <glm/glm.hpp>
-#include "Hazel.h"
+//#include "Hazel.h"
+#include "Texture.h"
+#include "Shader.h"
 
-class Shader;
 
 namespace Hazel {
 	struct Material
 	{
 	public:
-		Material() {
+		Material(Hazel::Ref <Hazel::Shader> Shader,std::string Name);
 
-		};
+		Material(Hazel::Ref <Hazel::Shader> Shader);
+
+		Material(Hazel::Ref <Hazel::Shader> Shader, Hazel::Ref<Hazel::Texture2D> Albedo, Hazel::Ref<Hazel::Texture2D> Spec);
+
 
 		~Material() = default;
 
@@ -21,21 +25,25 @@ namespace Hazel {
 		void Update();
 
 
+		Hazel::Ref <Hazel::Shader> GetShader() { return m_Shader; };
+
+		std::string materialName;
+
 		// Base Parameters
 		glm::vec3 TintBaseColor;
 		float SpecularIntensity;
 		float SpecularExponent;
 
 		// TEXTURES
-		Hazel::Ref<Hazel::Texture2D> Albedo;
-		Hazel::Ref<Hazel::Texture2D> Specular;
+		Hazel::Ref<Hazel::Texture2D> m_Albedo;
+		Hazel::Ref<Hazel::Texture2D> m_Specular;
 		//Hazel::Ref<Hazel::Texture2D> Normal;
 
 		// BOOLS
-		bool bHasAlbedoTexture;
-		bool bHasSpecularTexture;
+		bool bHasAlbedoTexture = false;
+		bool bHasSpecularTexture = false;
 
 	private:
-		Shader* Shader;
+		Hazel::Ref <Hazel::Shader> m_Shader;
 	};
 }

@@ -124,12 +124,14 @@ ExampleLayer::ExampleLayer()
 		)";
 		*/
 
-	Hazel::Scene* MyScene = new Hazel::Scene();
-	MyScene->Initialize();
+	//Hazel::Scene* MyScene = new Hazel::Scene();
+	//MyScene->InitializeScene();
 
 	m_Light = new Hazel::Light();
+
+	auto Mat = std::make_shared<Hazel::Material>(MainShader);
 	
-	m_Model = new Hazel::Model("assets/models/Cube.obj");
+	m_Model = new Hazel::Model("assets/models/Cube.obj",Mat);
 
 	MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
 	
@@ -183,15 +185,14 @@ void ExampleLayer::OnUpdate(Hazel::Timestep ts)
 	else
 	{
 		MainShader->SetFloat("u_LightIntensity", 0);
-
 		MainShader->Bind();
 	}
-	if (m_Model && m_Model->bDraw)
+	if (m_Model && m_Model->bVisible)
 	{
 		m_Model->Draw(MainShader);
 	}
 
-	if (m_Light->bDraw)
+	if (m_Light->bVisible)
 	{
 		m_Light->DrawVizualisationMesh(MainShader);
 	}
@@ -205,30 +206,7 @@ void ExampleLayer::OnImGuiRender()
 	ImGui::Begin("Settings");
 		ImGui::Begin("Model");
 			
-			ImGui::InputText("Path", m_path, IM_ARRAYSIZE(m_path));ImGui::SameLine();
-			if (ImGui::Button("Import"))
-			{
-				if (IM_ARRAYSIZE(m_path) > 0)
-				{
-					ImportModel(m_path);
-				}
-				
-			}
 			
-			if (ImGui::Button("Cube"))
-			{
-				ImportModel("assets/models/Cube.obj");
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Suzane"))
-			{
-				ImportModel("assets/models/Suzane.obj");
-			}
-			if (ImGui::Button("Material Viewer"))
-			{
-				ImportModel("assets/models/material_holder.obj");
-			}
-		ImGui::End();
 
 		ImGui::Begin("Light Properties");
 		ImGui::ColorEdit3("Color", glm::value_ptr(m_Light->LightColor));
@@ -245,7 +223,7 @@ void ExampleLayer::OnImGuiRender()
 		ImGui::SliderAngle("Yaw",	&m_Light->rotation.y, -90.f, 90.f);
 		ImGui::SliderAngle("Roll",	&m_Light->rotation.z, -90.f, 90.f);
 		ImGui::Spacing();
-		ImGui::Checkbox("bDraw ", &m_Light->bDraw);
+		ImGui::Checkbox("bDraw ", &m_Light->bVisible);
 		ImGui::Checkbox("Active ", &m_Light->bActive);
 		ImGui::End();
 
@@ -292,7 +270,7 @@ void ExampleLayer::OnImGuiRender()
 			ImGui::SliderAngle("Yaw", &m_Model->rotation.y, -90.f, 90.f);
 			ImGui::SliderAngle("Roll", &m_Model->rotation.z, -90.f, 90.f);
 			ImGui::Spacing();
-			ImGui::Checkbox("bDraw ", &m_Model->bDraw);
+			ImGui::Checkbox("bDraw ", &m_Model->bVisible);
 			ImGui::End();
 
 		ImGui::End();
@@ -303,11 +281,6 @@ void ExampleLayer::OnImGuiRender()
 void ExampleLayer::OnEvent(Hazel::Event& e) 
 {
 	m_CameraController.OnEvent(e);
-}
-
-void ExampleLayer::ImportModel(char* path)
-{
-	*m_Model = Hazel::Model(path);
 }
 
 const aiScene* ExampleLayer::ImportAsset(const std::string& path)

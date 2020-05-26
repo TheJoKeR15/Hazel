@@ -3,13 +3,38 @@
 
 namespace Hazel {
 
-    void Hazel::Model::Draw(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform)
+    void Model::Draw(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform)
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader, Transform);
     }
 
-    void Hazel::Model::Draw(Hazel::Ref<Hazel::Shader> shader)
+	void Model::OnInit()
+	{
+	}
+
+	void Model::OnBeginFrame()
+	{
+	}
+
+	void Model::OnUpdate(float dt)
+	{
+        if (bVisible)
+        {
+            Draw();
+        }
+	}
+
+	void Model::OnEndFrame()
+	{
+	}
+
+	void Model::Draw()
+	{
+        Draw(Shader, transform);
+	}
+
+	void Model::Draw(Hazel::Ref<Hazel::Shader> shader)
     {
         //shader->Setfloat("SpecularStrenght" , )
         RecalculateTransforms();
@@ -18,7 +43,7 @@ namespace Hazel {
 
     }
 
-    void Hazel::Model::loadModel(std::string path)
+    void Model::loadModel(std::string path)
     {
         Assimp::Importer import;
         const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -37,7 +62,7 @@ namespace Hazel {
     }
 
 
-    void Hazel::Model::processNode(aiNode* node, const aiScene* scene)
+    void Model::processNode(aiNode* node, const aiScene* scene)
     {
         // process all the node's meshes (if any)
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -56,7 +81,7 @@ namespace Hazel {
         //std::cout << "Loaded node with " << node->mNumChildren << " childrens \n";
     }
 
-    Mesh Hazel::Model::processMesh(aiMesh* mesh, const aiScene* scene)
+    Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     {
         // data to fill
         std::vector<Vertex> vertices;

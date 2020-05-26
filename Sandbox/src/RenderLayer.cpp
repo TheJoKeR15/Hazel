@@ -3,12 +3,12 @@
 #include "imgui/imgui.h"
 
 
-    RenderLayer::RenderLayer() :Layer("ExampleLayer"), m_CameraController(1280.0f / 720.0f, glm::vec3(0.f, 0.f, 5.f))
+    RenderLayer::RenderLayer() :Layer("ExampleLayer"), m_Scene(Hazel::Scene(1280.0f, 720.0f))
     {
         // Init
-        m_CameraController.GetCamera().SetPosition(glm::vec3(0.f, 0.f, 5.f));
+        m_Scene.GetCameraController()->GetCamera().SetPosition(glm::vec3(0.f, 0.f, 5.f));
 
-        m_Scene = Hazel::Scene();
+       
 
 
     }
@@ -18,7 +18,7 @@
 
         GetScene()->BeginScene();
 
-        GetScene()->RenderScene();
+        GetScene()->RenderScene(ts);
 
         GetScene()->EndScene();
 
@@ -28,7 +28,7 @@
     {
 
 
-        //SetupMainDockSpace();
+        SetupMainDockSpace();
 
         // Creatte the outliner 
         ShowOutliner();
@@ -40,6 +40,21 @@
         ImGui::ShowDemoWindow();
 
         ImGui::Begin("Debug");
+        char name[16] = {"New Entity"};
+        ImGui::InputText("Name :", name, IM_ARRAYSIZE(name));ImGui::SameLine();
+        if (ImGui::Button("Add Entity"))
+        {
+            
+            GetScene()->AddEnitity(new Hazel::Model("assets/models/Cube.obj",ListOfMaterials[0],name));
+        }
+        for (int i = 0; i < ListOfMaterials.size(); i++)
+        {
+            if (ImGui::TreeNode("List of Materials"))
+            {
+                ImGui::Text(ListOfMaterials[i]->materialName.c_str());
+                ImGui::TreePop();
+            }
+        }
         //ImGui::Text("Currently Selected : "); ImGui::SameLine(); ImGui::Text(SelectedEntity->displayName.c_str());
         ImGui::End();
 
@@ -49,7 +64,7 @@
 
     void RenderLayer::OnEvent(Hazel::Event& e)
     {
-        m_CameraController.OnEvent(e);
+        GetScene()->GetCameraController()->OnEvent(e);
     }
 
     void RenderLayer::DrawGizmo()
@@ -64,10 +79,15 @@
 
     void RenderLayer::OnAttach()
     {
-        GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj"));
+
+        MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
+
+        ListOfMaterials.push_back(std::make_shared<Hazel::Material>(MainShader,"MainMaterial"));
+
+        //GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj"));
         if (GetScene()->GetEntities().size() > 0)
         {
-           // SelectedEntity = GetScene()->GetEntities()[0];
+           //SelectedEntity = GetScene()->GetEntities()[0];
         }
     }
 
@@ -226,25 +246,25 @@
         ImGui::Begin("Camera Properties");
         if (ImGui::TreeNode("Position"))
         {
-            ImGui::SliderFloat("##X", &m_CameraController.m_CameraPosition.x, -5.f, 5.f, "X = %.3f");
-            ImGui::SliderFloat("##Y", &m_CameraController.m_CameraPosition.y, -5.f, 5.f, "Y = %.3f");
-            ImGui::SliderFloat("##Z", &m_CameraController.m_CameraPosition.z, -5.f, 5.f, "Z = %.3f");
+            ImGui::SliderFloat("##X", &GetScene()->GetCameraController()->m_CameraPosition.x, -5.f, 5.f, "X = %.3f");
+            ImGui::SliderFloat("##Y", &GetScene()->GetCameraController()->m_CameraPosition.y, -5.f, 5.f, "Y = %.3f");
+            ImGui::SliderFloat("##Z", &GetScene()->GetCameraController()->m_CameraPosition.z, -5.f, 5.f, "Z = %.3f");
             ImGui::TreePop();
         }
         ImGui::Separator();
         if (ImGui::TreeNodeEx("Rotation"))
         {
-            ImGui::SliderAngle("##X", &m_CameraController.GetCamera().Pitch, -90.f, 90.f, "Pitch = %.3f");
-            ImGui::SliderAngle("##Y", &m_CameraController.GetCamera().Yaw, -90.f, 90.f, "Yaw = %.3f");
-            ImGui::SliderAngle("##Z", &m_CameraController.GetCamera().Roll, -90.f, 90.f, "Roll = %.3f");
+            ImGui::SliderAngle("##X", &GetScene()->GetCameraController()->GetCamera().Pitch, -90.f, 90.f, "Pitch = %.3f");
+            ImGui::SliderAngle("##Y", &GetScene()->GetCameraController()->GetCamera().Yaw, -90.f, 90.f, "Yaw = %.3f");
+            ImGui::SliderAngle("##Z", &GetScene()->GetCameraController()->GetCamera().Roll, -90.f, 90.f, "Roll = %.3f");
             ImGui::TreePop();
         }
         ImGui::Spacing();
         if (ImGui::TreeNodeEx("Settings"))
         {
-            ImGui::SliderFloat("FOV", &m_CameraController.m_FOV, 0.f, 120.f, "FOV = %.3f");
-            ImGui::SliderFloat("Sensitivity", &m_CameraController.GetCamera().MouseSensitivity, 0.f, 8.f, "Sensitivity = %.3f");
-            ImGui::SliderFloat("Speed", &m_CameraController.m_CameraTranslationSpeed, 0.f, 8.f, "Speed = %.3f");
+            ImGui::SliderFloat("FOV", &GetScene()->GetCameraController()->m_FOV, 0.f, 120.f, "FOV = %.3f");
+            ImGui::SliderFloat("Sensitivity", &GetScene()->GetCameraController()->GetCamera().MouseSensitivity, 0.f, 8.f, "Sensitivity = %.3f");
+            ImGui::SliderFloat("Speed", &GetScene()->GetCameraController()->m_CameraTranslationSpeed, 0.f, 8.f, "Speed = %.3f");
             ImGui::TreePop();
         }
         ImGui::End();

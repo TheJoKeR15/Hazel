@@ -26,11 +26,14 @@ namespace Hazel {
 
 	void Renderer::BeginScene(Camera& camera)
 	{
+		RenderCommand::SetClearColor(glm::vec4(glm::vec3(0.1f), 1.f));
+		RenderCommand::Clear();
 		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 	}
 
 	void Renderer::EndScene()
 	{
+		
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)

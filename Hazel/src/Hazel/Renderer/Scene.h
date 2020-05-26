@@ -7,28 +7,45 @@
 #include "assimp/postprocess.h"    // Post processing flags
 
 #include "Hazel/Renderer/Entity.h"
+#include "CameraController.h"
 #include <vector>
 
 namespace Hazel {
 	class Scene
 	{
 	public:
-		Scene();
+		Scene(float Width, float Height);
 		
 
-		void Initialize();
+		void InitializeScene();
 
 		void BeginScene();
 
-		void RenderScene();
+		void RenderScene(float dt);
 
 		void EndScene();
 
 		void AddEnitity(Entity* newEntinity);
 
+		void RemoveEnitity(uint32_t ID);
+
+		void HandleEvent(Hazel::Event& e);
+
 		std::vector<Entity*>& GetEntities() { return Entities; };
 
+		CameraController* GetCameraController() { return &m_CameraController; };
+		
+	private:
+		
 		std::vector<Entity*> Entities;
+
+		uint32_t EntityIndex = 0;
+
+		CameraController m_CameraController;
+
+		float m_Width, m_Height;
+
 	};
+
 };
 

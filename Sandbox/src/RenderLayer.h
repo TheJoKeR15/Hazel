@@ -38,7 +38,11 @@
 
 		Hazel::ShaderLibrary m_ShaderLibrary;
 
-		Hazel::CameraController m_CameraController;
+		Hazel::Ref<Hazel::Shader> MainShader;
+
+		std::vector<Hazel::Ref<Hazel::Material>> ListOfMaterials;
+
+		//Hazel::CameraController m_CameraController;
 
 		Hazel::Scene m_Scene;
 	};

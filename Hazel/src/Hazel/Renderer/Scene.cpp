@@ -1,27 +1,76 @@
 #include "hzpch.h"
 #include "Scene.h"
+#include "Renderer.h"
 
-Hazel::Scene::Scene()
-{
-}
+namespace Hazel {
 
-void Hazel::Scene::Initialize()
-{
-}
+	Scene::Scene(float Width, float Height) : m_CameraController(Width / Height, glm::vec3(0.f, 0.f, 5.f)), m_Width(Width), m_Height(Height)
+	{
+		InitializeScene();
+	};
 
-void Hazel::Scene::RenderScene()
-{
-}
+	void Scene::InitializeScene()
+	{
+		HZ_CORE_INFO("Scene Initialized");
+		for (int i = 0; i < Entities.size(); i++)
+		{
+			// Initialize every compopnent in the scene
+			auto EnTT = Entities[i];
+			EnTT->OnInit();
+		}
+	}
 
-void Hazel::Scene::BeginScene()
-{
-}
+	void Scene::RenderScene(float dt)
+	{
+		// Update the camera first 
+		m_CameraController.OnUpdate(dt);
 
-void Hazel::Scene::EndScene()
-{
-}
+		// Loop^in the list of all the entitiy and render the one flaged to 
 
-void Hazel::Scene::AddEnitity(Entity* newEntinity)
-{
-	Entities.push_back(newEntinity);
+		for (int i = 0; i < Entities.size(); i++)
+		{
+			auto EnTT = Entities[i];
+			if (EnTT->bUpdate)
+			{
+				// trigger on update event
+				EnTT->OnUpdate(dt);
+			}
+		}
+	}
+
+	void Scene::BeginScene()
+	{
+		Hazel::Renderer::BeginScene(m_CameraController.GetCamera());
+		for (int i = 0; i < Entities.size(); i++)
+		{
+			// Initialize every compopnent in the scene
+			auto EnTT = Entities[i];
+			EnTT->OnBeginFrame();
+		}
+	}
+
+	void Scene::EndScene()
+	{
+		for (int i = 0; i < Entities.size(); i++)
+		{
+			// Initialize every compopnent in the scene
+			auto EnTT = Entities[i];
+			EnTT->OnEndFrame();
+		}
+	}
+
+	void Scene::AddEnitity(Entity* newEntinity)
+	{
+		newEntinity->UniqueID = EntityIndex++;
+		Entities.push_back(newEntinity);
+	}
+	void Scene::RemoveEnitity(uint32_t ID)
+	{
+		//delete Entities[ID];
+		Entities.erase(Entities.begin() + ID);
+	}
+	void Scene::HandleEvent(Hazel::Event& e)
+	{
+
+	}
 }

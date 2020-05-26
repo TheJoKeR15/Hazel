@@ -19,7 +19,6 @@ public:
 	void OnEvent(Hazel::Event& e) override;
 
 
-	void ImportModel(char*);
 	const aiScene* ImportAsset(const std::string& path);
 
 private:
