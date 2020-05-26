@@ -3,7 +3,6 @@
 #include "imgui/imgui.h"
 
 
-namespace Hazel {
     RenderLayer::RenderLayer() :Layer("ExampleLayer"), m_CameraController(1280.0f / 720.0f, glm::vec3(0.f, 0.f, 5.f))
     {
         // Init
@@ -272,4 +271,3 @@ namespace Hazel {
         return &m_Scene;
     }
 
-}

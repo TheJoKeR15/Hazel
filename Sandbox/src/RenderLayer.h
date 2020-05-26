@@ -4,7 +4,6 @@
 
 #include "Hazel/Core/Layer.h"
 
-namespace Hazel {
 	class RenderLayer : public Hazel::Layer
 	{
 	public:
@@ -43,5 +42,3 @@ namespace Hazel {
 
 		Hazel::Scene m_Scene;
 	};
-
-}
