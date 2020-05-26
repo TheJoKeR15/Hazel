@@ -18,9 +18,15 @@ namespace Hazel {
 
 		void Initialize();
 
+		void BeginScene();
+
 		void RenderScene();
 
+		void EndScene();
+
 		void AddEnitity(Entity* newEntinity);
+
+		std::vector<Entity*>& GetEntities() { return Entities; };
 
 		std::vector<Entity*> Entities;
 	};

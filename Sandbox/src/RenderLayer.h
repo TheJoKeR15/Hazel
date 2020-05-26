@@ -4,34 +4,44 @@
 
 #include "Hazel/Core/Layer.h"
 
-namespace Hazel{}
-class RenderLayer : public Hazel::Layer
-{
-public:
-	RenderLayer();
-	virtual ~RenderLayer() = default;
+namespace Hazel {
+	class RenderLayer : public Hazel::Layer
+	{
+	public:
+		RenderLayer();
+		virtual ~RenderLayer() = default;
 
-	virtual void OnAttach() override;
-	virtual void OnDetach() override;
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
 
-	void OnUpdate(Hazel::Timestep ts) override;
-	virtual void OnImGuiRender() override;
-	void OnEvent(Hazel::Event & e) override;
+		void OnUpdate(Hazel::Timestep ts) override;
+		virtual void OnImGuiRender() override;
+		void OnEvent(Hazel::Event& e) override;
 
-	void ShowOutliner();
+		void ShowOutliner();
 
-	void ShowCameraTab();
+		void ShowCameraTab();
 
-	void HelpMarker();
+		void HelpMarker(const char* desc);
 
-	void SetupMainMenuBar();
+		void SetupMainMenuBar();
 
-	void SetupMainDockSpace();
+		void SetupMainDockSpace(bool* p_open = NULL);
+
+		void DrawGizmo();
+
+		void EditTransform(const float* cameraView, float* cameraProjection, float* matrix);
+
+		Hazel::Scene* RenderLayer::GetScene();
 
 
-private:
-	Hazel::ShaderLibrary m_ShaderLibrary;
+	private:
 
-	Hazel::CameraController m_CameraController;
-};
+		Hazel::ShaderLibrary m_ShaderLibrary;
 
+		Hazel::CameraController m_CameraController;
+
+		Hazel::Scene m_Scene;
+	};
+
+}

@@ -3,6 +3,8 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <string>
+
 class Material;
 
 
@@ -14,6 +16,8 @@ namespace Hazel {
 		bool bDraw = true;
 
 		Material* Material;
+
+		std::string displayName;
 
 		void SetPosition(glm::vec3 newPos)
 		{
