@@ -3,6 +3,7 @@
 
 #include "Sandbox2D.h"
 #include "ExampleLayer.h"
+#include "RenderLayer.h"
 
 class Sandbox : public Hazel::Application
 {
