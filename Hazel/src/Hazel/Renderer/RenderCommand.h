@@ -11,6 +11,10 @@ namespace Hazel {
 		{
 			s_RendererAPI->Init();
 		}
+		static void InitFrameBuffer()
+		{
+			s_RendererAPI->InitFrameBuffer();
+		}
 
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 		{

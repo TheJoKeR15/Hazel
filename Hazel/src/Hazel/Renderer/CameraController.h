@@ -21,10 +21,18 @@ namespace Hazel {
 		float GetFov() const { return m_FOV; }
 		void SetFov(float FOV) { m_FOV = FOV; }
 
+		void SetNewViewPortSize(float Width, float Height)
+		{
+			ViewPortWidth = Width; ViewPortHeight = Height; 
+			m_Camera.SetProjection(m_FOV, ViewPortWidth / ViewPortHeight, 0.1f, 1000.f);
+		};
+
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
 	private:
+		float ViewPortWidth;
+		float ViewPortHeight;
 		float m_AspectRatio;
 		float m_ZoomLevel = 1.f;
 		Camera m_Camera;

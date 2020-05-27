@@ -1,34 +1,75 @@
 #include "RenderLayer.h"
 
 #include "imgui/imgui.h"
+#include <glm/gtc/type_ptr.hpp>
 
 
     RenderLayer::RenderLayer() :Layer("ExampleLayer"), m_Scene(Hazel::Scene(1280.0f, 720.0f))
     {
+
         // Init
         m_Scene.GetCameraController()->GetCamera().SetPosition(glm::vec3(0.f, 0.f, 5.f));
 
-       
-
+        Buffer = 0;
+        FrameBuffer = Hazel::FrameBuffer::Create(Buffer,1280,720);
 
     }
 
-    void RenderLayer::OnUpdate(Hazel::Timestep ts)
+    void RenderLayer::OnAttach()
     {
 
+
+        MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
+
+        ListOfMaterials.push_back(std::make_shared<Hazel::Material>(MainShader, "MainMaterial"));
+
+        GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj", ListOfMaterials[0]));
+        //GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj"));
+        if (GetScene()->GetEntities().size() > 0)
+        {
+            //SelectedEntity = GetScene()->GetEntities()[0];
+        }
+
+        FrameBuffer->AttachColorTexture2D(1280, 720, 0, 0);
+    }
+
+    void RenderLayer::OnDetach()
+    {
+        FrameBuffer->FreeBuffer();
+    }
+
+
+    void RenderLayer::OnUpdate(Hazel::Timestep ts)
+    {
+        //FrameBuffer->Bind(Buffer);
+        
+        FrameBuffer->Bind();
+        FrameBuffertexture = FrameBuffer->AttachColorTexture2D(ViewPortSize.x, ViewPortSize.y ,ViewPortPosition.x,ViewPortPosition.y);
+
+        // This Doesnt Work For the moment 
+        //FrameBuffer->AttachDepthTexture2D(ViewPortSize[0], ViewPortSize[1]);
+
+        // Begin the scene FRAME START
         GetScene()->BeginScene();
 
+        // Render the Scene
         GetScene()->RenderScene(ts);
 
+        // End the Scene
         GetScene()->EndScene();
 
+        // Unbind the Framebuffer to let ImGui render
+        FrameBuffer->Unbind();
     }
 
     void RenderLayer::OnImGuiRender()
     {
 
-
+        // Setup the main docking space 
         SetupMainDockSpace();
+
+        // setting up the viewport (frame buffer and cie)
+        SetupViewPort();
 
         // Creatte the outliner 
         ShowOutliner();
@@ -36,35 +77,27 @@
         // Add the camera properties tab
         ShowCameraTab();
 
+        // add the scene settings tab
+        ShowSceneSettings();
+
         // Temporary
         ImGui::ShowDemoWindow();
-
-        ImGui::Begin("Debug");
-        char name[16] = {"New Entity"};
-        ImGui::InputText("Name :", name, IM_ARRAYSIZE(name));ImGui::SameLine();
-        if (ImGui::Button("Add Entity"))
-        {
-            
-            GetScene()->AddEnitity(new Hazel::Model("assets/models/Cube.obj",ListOfMaterials[0],name));
-        }
-        for (int i = 0; i < ListOfMaterials.size(); i++)
-        {
-            if (ImGui::TreeNode("List of Materials"))
-            {
-                ImGui::Text(ListOfMaterials[i]->materialName.c_str());
-                ImGui::TreePop();
-            }
-        }
-        //ImGui::Text("Currently Selected : "); ImGui::SameLine(); ImGui::Text(SelectedEntity->displayName.c_str());
-        ImGui::End();
-
-
 
     }
 
     void RenderLayer::OnEvent(Hazel::Event& e)
     {
         GetScene()->GetCameraController()->OnEvent(e);
+    }
+
+    float RenderLayer::GetViewPortSizeX()
+    {
+        return ViewPortSize[0];
+    }
+
+    float RenderLayer::GetViewPortSizeY()
+    {
+        return ViewPortSize[1];
     }
 
     void RenderLayer::DrawGizmo()
@@ -77,24 +110,6 @@
 
     }
 
-    void RenderLayer::OnAttach()
-    {
-
-        MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
-
-        ListOfMaterials.push_back(std::make_shared<Hazel::Material>(MainShader,"MainMaterial"));
-
-        //GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj"));
-        if (GetScene()->GetEntities().size() > 0)
-        {
-           //SelectedEntity = GetScene()->GetEntities()[0];
-        }
-    }
-
-    void RenderLayer::OnDetach()
-    {
-
-    }
 
     void RenderLayer::SetupMainDockSpace(bool* p_open)
     {
@@ -184,6 +199,52 @@
         ImGui::End();
     }
 
+    void RenderLayer::SetupViewPort()
+    {
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        ImGui::Begin("Viewport",NULL,flags);
+
+        ViewPortSize = ImGui::GetWindowSize();
+        ViewPortPosition = ImGui::GetWindowPos();
+
+        ImGui::Image((void*)(intptr_t)FrameBuffertexture, ViewPortSize,ImVec2(0,1), ImVec2(1, 0));
+        GetScene()->GetCameraController()->SetNewViewPortSize(ViewPortSize.x, ViewPortSize.y);
+        ImGui::End();
+    }
+
+    void RenderLayer::ShowSceneSettings()
+    {
+        ImGui::Begin("Scene Settings");
+        ImGui::ColorEdit3("Background Color ", glm::value_ptr(*GetScene()->GetBackGroundColor()));
+        ImGui::End();
+    }
+
+    void RenderLayer::ShowDebugPanel()
+    {
+        ImGui::Begin("Debug");
+
+        ImGui::Text("Frame Buffer pointer = %p", FrameBuffertexture);
+        ImGui::Text("ViewPort size = %f x %f", ViewPortSize.x, ViewPortSize.y);
+
+        char name[16] = { "New Entity" };
+        ImGui::InputText("Name :", name, IM_ARRAYSIZE(name));ImGui::SameLine();
+        if (ImGui::Button("Add Entity"))
+        {
+
+            GetScene()->AddEnitity(new Hazel::Model("assets/models/Cube.obj", ListOfMaterials[0], name));
+        }
+        for (int i = 0; i < ListOfMaterials.size(); i++)
+        {
+            if (ImGui::TreeNode("List of Materials"))
+            {
+                ImGui::Text(ListOfMaterials[i]->materialName.c_str());
+                ImGui::TreePop();
+            }
+        }
+        //ImGui::Text("Currently Selected : "); ImGui::SameLine(); ImGui::Text(SelectedEntity->displayName.c_str());
+        ImGui::End();
+    }
+
     void RenderLayer::SetupMainMenuBar()
     {
         if (ImGui::BeginMenuBar())
@@ -239,8 +300,6 @@
         ImGui::End();
     }
 
-
-
     void RenderLayer::ShowCameraTab()
     {
         ImGui::Begin("Camera Properties");
@@ -270,8 +329,6 @@
         ImGui::End();
     }
 
- 
-
     void RenderLayer::HelpMarker(const char* desc)
     {
         ImGui::TextDisabled("(?)");
@@ -284,7 +341,6 @@
             ImGui::EndTooltip();
         }
     }
-
 
     Hazel::Scene* RenderLayer::GetScene()
     {

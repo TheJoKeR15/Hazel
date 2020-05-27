@@ -31,6 +31,8 @@ namespace Hazel {
 
 		void HandleEvent(Hazel::Event& e);
 
+		glm::vec3* GetBackGroundColor() { return &BackGroundColor; };
+
 		std::vector<Entity*>& GetEntities() { return Entities; };
 
 		CameraController* GetCameraController() { return &m_CameraController; };
@@ -44,6 +46,8 @@ namespace Hazel {
 		CameraController m_CameraController;
 
 		float m_Width, m_Height;
+
+		glm::vec3 BackGroundColor = glm::vec3(0.1f);
 
 	};
 

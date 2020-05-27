@@ -68,4 +68,18 @@ namespace Hazel {
 		return nullptr;
 	}
 
+
+
+	Ref<FrameBuffer> FrameBuffer::Create(uint32_t& Index, int Width, int height)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLFrameBuffer>(Index,Width,height);
+		}
+
+		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
+	}
+
 }

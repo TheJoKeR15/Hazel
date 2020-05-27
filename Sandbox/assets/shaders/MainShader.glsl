@@ -82,7 +82,7 @@ void main()
 
     vec3 Result = ( Specular + Diffuse + AmbiantLight);
     
-    FinalColor = texture(u_Texture, v_TexCoord) * vec4(Result,1.0f);
+    FinalColor = texture(u_Texture, v_TexCoord);// * vec4(Result,1.0f);
     //FinalColor = vec4(u_LightPosition,1.);
 
 }

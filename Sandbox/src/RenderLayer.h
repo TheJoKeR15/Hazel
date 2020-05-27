@@ -3,6 +3,7 @@
 #include "Hazel.h"
 
 #include "Hazel/Core/Layer.h"
+#include "imgui/imgui.h"
 
 	class RenderLayer : public Hazel::Layer
 	{
@@ -21,11 +22,23 @@
 
 		void ShowCameraTab();
 
+		void ShowSceneSettings();
+
+		void ShowDebugPanel();
+
 		void HelpMarker(const char* desc);
 
 		void SetupMainMenuBar();
 
 		void SetupMainDockSpace(bool* p_open = NULL);
+
+		void SetupViewPort();
+
+
+
+		float GetViewPortSizeX();
+
+		float GetViewPortSizeY();
 
 		void DrawGizmo();
 
@@ -45,4 +58,13 @@
 		//Hazel::CameraController m_CameraController;
 
 		Hazel::Scene m_Scene;
+
+		uint32_t Buffer ;
+		uint32_t FrameBuffertexture;
+		Hazel::Ref<Hazel::FrameBuffer> FrameBuffer;
+
+		ImVec2 ViewPortSize;
+		ImVec2 ViewPortPosition;
+
+
 	};

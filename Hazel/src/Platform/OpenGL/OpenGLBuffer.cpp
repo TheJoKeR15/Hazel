@@ -1,5 +1,6 @@
 #include "hzpch.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
 
 #include <glad/glad.h>
 
@@ -117,6 +118,92 @@ namespace Hazel {
 		HZ_PROFILE_FUNCTION();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// IndexBuffer //////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+
+	OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t &Index ,int Width, int height) : m_Index(Index)
+	{
+		HZ_PROFILE_FUNCTION();
+
+		glGenFramebuffers(1, &Buffer);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, Buffer);
+
+		// create the texture attachement
+		glGenTextures(1, &TextureBuffer);
+		//Bind the frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, Buffer);
+		// Creating a texture for a framebuffer
+
+
+		
+		
+
+		
+	}
+
+	OpenGLFrameBuffer::~OpenGLFrameBuffer()
+	{
+		FreeBuffer();
+	}
+
+
+
+	void OpenGLFrameBuffer::Bind() const
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, Buffer);
+	}
+
+	void OpenGLFrameBuffer::Unbind() const
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	uint32_t* OpenGLFrameBuffer::GetTexture() 
+	{
+		return &TextureBuffer;
+	}
+
+	uint32_t OpenGLFrameBuffer::AttachColorTexture2D(int Width,int height, int X, int Y)
+	{
+		// Resize the viewport to the size of the Buffer
+		glViewport(0, 0, Width, height);
+
+		glBindTexture(GL_TEXTURE_2D, TextureBuffer);
+		// Generate the texture
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		//Defining the parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		//attach it to the framebuffer:
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureBuffer, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return TextureBuffer;
+	}
+
+	void OpenGLFrameBuffer::AttachDepthTexture2D(int width, int height) 
+	{
+		glGenRenderbuffers(1, &RenderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, RenderBuffer);
+
+
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RenderBuffer); // now actually attach it
+		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void OpenGLFrameBuffer::FreeBuffer() const
+	{
+
+		glDeleteFramebuffers(1, &Buffer);
 	}
 
 }

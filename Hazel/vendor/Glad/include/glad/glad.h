@@ -92,7 +92,8 @@ GLAPI int gladLoadGL(void);
 
 GLAPI int gladLoadGLLoader(GLADloadproc);
 
-#include <KHR/khrplatform.h>
+//#include <KHR/khrplatform.h>
+#include "KHR/khrplatform.h"
 typedef unsigned int GLenum;
 typedef unsigned char GLboolean;
 typedef unsigned int GLbitfield;
@@ -129,6 +130,7 @@ typedef khronos_int64_t GLint64;
 typedef khronos_int64_t GLint64EXT;
 typedef khronos_uint64_t GLuint64;
 typedef khronos_uint64_t GLuint64EXT;
+
 typedef struct __GLsync *GLsync;
 struct _cl_context;
 struct _cl_event;

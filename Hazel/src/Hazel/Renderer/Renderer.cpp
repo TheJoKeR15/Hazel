@@ -11,6 +11,7 @@ namespace Hazel {
 		HZ_PROFILE_FUNCTION();
 
 		RenderCommand::Init();
+		RenderCommand::InitFrameBuffer();
 		Renderer2D::Init();
 	}
 
@@ -26,7 +27,7 @@ namespace Hazel {
 
 	void Renderer::BeginScene(Camera& camera)
 	{
-		RenderCommand::SetClearColor(glm::vec4(glm::vec3(0.1f), 1.f));
+
 		RenderCommand::Clear();
 		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 	}

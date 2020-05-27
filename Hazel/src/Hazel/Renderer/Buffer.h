@@ -3,6 +3,7 @@
 #include "Hazel/Core/Core.h"
 #include "Vertex.h"
 
+
 namespace Hazel {
 
 	enum class ShaderDataType
@@ -135,6 +136,28 @@ namespace Hazel {
 		static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
 
 		static Ref<IndexBuffer> Create(std::vector<uint32_t> indices);
+	};
+
+	// Currently Hazel only supports 32-bit index buffers
+	class FrameBuffer
+	{
+	public:
+		virtual ~FrameBuffer() = default;
+
+		virtual void Bind() const = 0;
+		virtual void Unbind() const = 0;
+
+		virtual void FreeBuffer() const = 0;
+
+		virtual uint32_t* GetTexture() = 0;
+
+		virtual uint32_t AttachColorTexture2D(int Width, int height, int X, int Y)  = 0;
+		virtual void AttachDepthTexture2D(int Width, int height)  = 0;
+
+		static Ref<FrameBuffer> Create(uint32_t &Buffer, int Width, int height);
+
+		
+
 	};
 
 }

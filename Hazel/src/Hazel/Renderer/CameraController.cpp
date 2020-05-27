@@ -128,7 +128,7 @@ namespace Hazel {
 
 		//m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
 		//m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
-		m_Camera.SetProjection(m_ZoomLevel, (float)e.GetWidth()/(float)e.GetHeight(), 0.1f, 1000.f);
+		m_Camera.SetProjection(m_ZoomLevel, ViewPortWidth /ViewPortHeight, 0.1f, 1000.f);
 		return false;
 	}
 
