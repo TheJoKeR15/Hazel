@@ -21,12 +21,12 @@ namespace Hazel {
 
 	void Model::OnBeginFrame()
 	{
-       RecalculateTransforms();
+       
 	}
 
 	void Model::OnUpdate(float dt)
 	{
-
+        RecalculateTransforms();
         if (bVisible)
         {
 

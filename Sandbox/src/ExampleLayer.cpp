@@ -127,7 +127,7 @@ ExampleLayer::ExampleLayer()
 	//Hazel::Scene* MyScene = new Hazel::Scene();
 	//MyScene->InitializeScene();
 
-	m_Light = new Hazel::Light();
+	m_Light = new Hazel::Light(MainShader);
 
 	auto Mat = std::make_shared<Hazel::Material>(MainShader);
 	
@@ -192,10 +192,6 @@ void ExampleLayer::OnUpdate(Hazel::Timestep ts)
 		m_Model->Draw(MainShader);
 	}
 
-	if (m_Light->bVisible)
-	{
-		m_Light->DrawVizualisationMesh(MainShader);
-	}
 
 	Hazel::Renderer::EndScene();
 }

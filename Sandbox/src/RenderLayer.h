@@ -2,13 +2,14 @@
 
 #include "Hazel.h"
 
+
 #include "Hazel/Core/Layer.h"
 #include "imgui/imgui.h"
-
+#include "GizmoOverlay.h"
 	class RenderLayer : public Hazel::Layer
 	{
 	public:
-		RenderLayer();
+		RenderLayer(GizmoOverlay* GizmoLayer);
 		virtual ~RenderLayer() = default;
 
 		virtual void OnAttach() override;
@@ -34,15 +35,13 @@
 
 		void SetupViewPort();
 
-
+		void SelectEntity(Hazel::Entity* newSelectedEntity);
 
 		float GetViewPortSizeX();
 
 		float GetViewPortSizeY();
 
-		void DrawGizmo();
-
-		void EditTransform(const float* cameraView, float* cameraProjection, float* matrix);
+		
 
 		Hazel::Scene* RenderLayer::GetScene();
 
@@ -53,9 +52,15 @@
 
 		Hazel::Ref<Hazel::Shader> MainShader;
 
+		Hazel::Light* m_Light;
+
 		std::vector<Hazel::Ref<Hazel::Material>> ListOfMaterials;
 
 		glm::vec3 lightpos = glm::vec3(0.f, 5.f, 0.f);
+
+		Hazel::Entity* SelectedEntity;
+
+		GizmoOverlay* m_GizmoLayer;
 
 		//Hazel::CameraController m_CameraController;
 
@@ -68,6 +73,9 @@
 
 		ImVec2 ViewPortSize;
 		ImVec2 ViewPortPosition;
+
+
+
 
 
 	};

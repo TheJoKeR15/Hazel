@@ -2,7 +2,7 @@
 
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
-
+#include "glm/gtc/quaternion.hpp"
 #include <string>
 
 class Material;
@@ -36,6 +36,9 @@ namespace Hazel {
 		// should this entity be Rendered (every frame)
 		bool bVisible = true;
 
+		// should this entity be Rendered (every frame)
+		bool bIsSelected = false;
+
 		uint32_t UniqueID = 0;
 
 
@@ -60,16 +63,25 @@ namespace Hazel {
 		{
 			scale = newscl;
 		};
+
+		glm::fmat4* GetTransform() { return &transform; };
 		
 		// Recalculate the transform of this entity from : position , scale 
-		// @TODO : add Scale
+		
 		void RecalculateTransforms()
 		{
+			if (!bIsSelected)
+			{
 			transform = glm::translate(glm::mat4(1.0f), position)
-				* glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(1, 0, 0))
-				* glm::rotate(glm::mat4(1.0f), rotation.y, glm::vec3(0, 1, 0))
-				* glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0, 0, 1))
+				* glm::rotate(glm::mat4(1.0f), rotation.r, glm::vec3(1, 0, 0))
+				* glm::rotate(glm::mat4(1.0f), rotation.g, glm::vec3(0, 1, 0))
+				* glm::rotate(glm::mat4(1.0f), rotation.b, glm::vec3(0, 0, 1))
 				* glm::scale(glm::mat4(1.0f), scale);
+			}
+		};
+		void RecalculateTransforms(glm::mat4* newTransf)
+		{
+			transform = *newTransf;
 		};
 
 	

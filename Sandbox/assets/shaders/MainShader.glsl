@@ -46,8 +46,16 @@ uniform sampler2D t_BaseColor;
 uniform sampler2D t_Specular;
 uniform float SpecularStrenght;
 uniform float SpecularExponent;
-uniform bool b_hasBaseColorTexture;
-uniform bool b_hasSpecularTexture;
+uniform vec3 BasecolorTint;
+
+uniform bool bHasAlbedoTexture = false;
+uniform bool bHasSpeclarTexture = false;
+
+
+
+ const float constant =  1.0f;
+ const float linear =     0.09f;
+ const float quadratic = 0.032f;
 
 //float SpecularExponent = 128;
 //float SpecularStrenght = 1;
@@ -62,11 +70,21 @@ void main()
     // calculating light direction
     vec3 LightDir = normalize(u_LightPosition - v_PositionWS);
 
+    float distance    = length(u_LightPosition - v_PositionWS);
+    float attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));   
     // calculating light Contribution
-    float l = max(dot(Normal,LightDir),0.f);
+    float l = max(dot(Normal,LightDir),0.f) ;
 
+    vec3 Diffuse = vec3(1.f);
     // Claculating the diffuse Term
-    vec3 Diffuse = l * u_LightColor * u_LightIntensity;
+    if (bHasAlbedoTexture)
+    {
+    Diffuse = l * u_LightColor * u_LightIntensity * BasecolorTint * vec3(texture(t_BaseColor, v_TexCoord));
+    }
+    else
+    {
+    Diffuse = l * u_LightColor * u_LightIntensity * BasecolorTint ;
+    }
 
     // Claculating the Ambient Term
     vec3 AmbiantLight = vec3(u_AmbiantLight);
@@ -81,11 +99,19 @@ void main()
     // Specular Contribution
     float spec = pow(max(dot(ViewDirection,ReflectionDir),0.0),SpecularExponent);
 
-    vec3 Specular = SpecularStrenght * u_LightColor * spec;
-
-    vec3 Result = (  Diffuse + AmbiantLight);
+    vec3 Specular =vec3(1.f);
+    if (bHasSpeclarTexture)
+    {
+     Specular = SpecularStrenght * u_LightColor * spec * texture(t_Specular, v_TexCoord).r;
+    }
+    else
+    {
+    Specular = SpecularStrenght * u_LightColor * spec ;
+    }
+    vec3 Result = (( Specular + Diffuse )* attenuation )+ AmbiantLight;
     
-    FinalColor = texture(t_BaseColor, v_TexCoord) * vec4(Result,1.0f);
-    //FinalColor = vec4(u_LightPosition,1.);
+    FinalColor =  vec4(Result,1.0f);
+    //FinalColor  = texture(t_Specular, v_TexCoord);
+    //FinalColor = vec4(vec3(SpecularStrenght),1.);
 
 }

@@ -207,6 +207,11 @@ namespace Hazel {
 		UploadUniformInt(name, value);
 	}
 
+	void OpenGLShader::SetBool(const std::string& name, bool value)
+	{
+		UploadUniformBool(name, value);
+	}
+
 	void OpenGLShader::SetIntArray(const std::string& name, int* values, uint32_t count)
 	{
 		UploadUniformIntArray(name, values, count);
@@ -238,6 +243,12 @@ namespace Hazel {
 		HZ_PROFILE_FUNCTION();
 
 		UploadUniformMat4(name, value);
+	}
+
+	void OpenGLShader::UploadUniformBool(const std::string& name, bool value)
+	{
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		glUniform1i(location, value);
 	}
 
 	void OpenGLShader::UploadUniformInt(const std::string& name, int value)

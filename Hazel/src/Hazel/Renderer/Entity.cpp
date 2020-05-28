@@ -30,4 +30,5 @@ namespace Hazel {
 	void Entity::OnEndFrame()
 	{
 	}
+
 }
