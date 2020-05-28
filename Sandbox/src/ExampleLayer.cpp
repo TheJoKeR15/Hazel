@@ -131,7 +131,7 @@ ExampleLayer::ExampleLayer()
 
 	auto Mat = std::make_shared<Hazel::Material>(MainShader);
 	
-	m_Model = new Hazel::Model("assets/models/Cube.obj",Mat);
+	m_Model = new Hazel::Model("assets/models/Cube.obj","Model",Mat, MainShader);
 
 	MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
 	

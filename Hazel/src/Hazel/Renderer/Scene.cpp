@@ -40,9 +40,9 @@ namespace Hazel {
 
 	void Scene::BeginScene()
 	{
-		RenderCommand::SetClearColor(glm::vec4(BackGroundColor, 1.f));
-		Hazel::Renderer::BeginScene(m_CameraController.GetCamera());
-		
+
+		ClearScene();
+
 		for (int i = 0; i < Entities.size(); i++)
 		{
 			// Initialize every compopnent in the scene
@@ -74,5 +74,10 @@ namespace Hazel {
 	void Scene::HandleEvent(Hazel::Event& e)
 	{
 
+	}
+	void Scene::ClearScene()
+	{
+		RenderCommand::SetClearColor(glm::vec4(BackGroundColor, 1.f));
+		Hazel::Renderer::BeginScene(m_CameraController.GetCamera());
 	}
 }

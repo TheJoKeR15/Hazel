@@ -12,7 +12,7 @@ namespace Hazel {
 
 		RenderCommand::Init();
 		RenderCommand::InitFrameBuffer();
-		Renderer2D::Init();
+		//Renderer2D::Init();
 	}
 
 	void Renderer::Shutdown()

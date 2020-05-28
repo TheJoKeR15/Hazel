@@ -1,27 +1,28 @@
 #include "hzpch.h"
 #include "Mesh.h"
 #include "Renderer.h"
+#include "Material.h"
 
-Hazel::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Hazel::Ref<Hazel::Material> Material, std::string name) : m_name(name)
 {
     this->m_vertices = vertices;
     this->m_indices = indices;
-   // this->m_textures = textures;
+    this->m_Material = Material;
 
     setupMesh();
 }
 
 
-void Hazel::Mesh::Draw(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform)
+void Mesh::Draw(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform)
 {
-	Hazel::Renderer::Submit(Ref<Shader>(shader), m_VA, Transform);
+    
+	m_Material->Update();
+
+	Hazel::Renderer::Submit(Hazel::Ref<Hazel::Shader>(shader), m_VA, Transform);
 }
 
-void Hazel::Mesh::DrawCube(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform)
-{
-}
 
-void Hazel::Mesh::setupMesh()
+void Mesh::setupMesh()
 {
 	m_VA = Hazel::VertexArray::Create();
 

@@ -19,20 +19,12 @@ namespace Hazel {
     {
     public:
 
-        Model(char* path, Hazel::Ref<Hazel::Material> Material)
-            : m_path(path), m_Material(Material)
+        Model(char* path, std::string Inname, Hazel::Ref<Hazel::Material> Material,Hazel::Ref<Hazel::Shader> shader)
+            : m_path(path), m_Material(Material), m_Shader(shader),Entity(Inname)
         {
             loadModel(path);
-            transform = glm::mat4(1.f);
-            Shader = m_Material->GetShader();
-        }
-        Model(char* path, Hazel::Ref<Hazel::Material> Material, std::string Inname)
-            : m_path(path), m_Material(Material), Entity(Inname)
-        {
-    
-            loadModel(path);
-            transform = glm::mat4(1.f);
-            Shader = m_Material->GetShader();
+            //transform = glm::mat4(1.f);
+            //Shader = m_Material->GetShader();
         }
 
         virtual void OnInit() override;
@@ -60,23 +52,23 @@ namespace Hazel {
         // @TODO : REPLACE this with an ECS or component system later
         // Because here an entity can only have one material
         // The material of the entity 
-        Hazel::Ref<Hazel::Shader> Shader;
+        Hazel::Ref<Hazel::Shader> m_Shader;
 
-
+        std::vector<Mesh> &Getmeshes() { return meshes; };
 
 
     private:
         // model data
         std::vector<Mesh> meshes;
-        
-
+        std::vector<Ref<Material>> Materials;
+        std::vector<Ref<Texture2D>> textures_loaded;
+       // std::vector<Ref<Texture2D>> textures;
         std::string directory;
-
-
         char* m_path;
         void loadModel(std::string path);
         void processNode(aiNode* node, const aiScene* scene);
         Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+        Ref<Texture2D> loadMaterialTexture(aiMaterial* mat, aiTextureType type, std::string typeName);
         //std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,std::string typeName);
     };
 }

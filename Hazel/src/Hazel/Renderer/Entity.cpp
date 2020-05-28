@@ -15,6 +15,7 @@ namespace Hazel {
 	}
 	void Entity::OnInit()
 	{
+
 	}
 
 	void Entity::OnBeginFrame()

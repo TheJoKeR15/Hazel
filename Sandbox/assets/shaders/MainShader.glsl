@@ -42,9 +42,12 @@ uniform float u_LightIntensity;
 uniform float u_LightRadius;
 
 // Material Uniforms
-uniform sampler2D u_Texture;
+uniform sampler2D t_BaseColor;
+uniform sampler2D t_Specular;
 uniform float SpecularStrenght;
 uniform float SpecularExponent;
+uniform bool b_hasBaseColorTexture;
+uniform bool b_hasSpecularTexture;
 
 //float SpecularExponent = 128;
 //float SpecularStrenght = 1;
@@ -80,9 +83,9 @@ void main()
 
     vec3 Specular = SpecularStrenght * u_LightColor * spec;
 
-    vec3 Result = ( Specular + Diffuse + AmbiantLight);
+    vec3 Result = (  Diffuse + AmbiantLight);
     
-    FinalColor = texture(u_Texture, v_TexCoord);// * vec4(Result,1.0f);
+    FinalColor = texture(t_BaseColor, v_TexCoord) * vec4(Result,1.0f);
     //FinalColor = vec4(u_LightPosition,1.);
 
 }

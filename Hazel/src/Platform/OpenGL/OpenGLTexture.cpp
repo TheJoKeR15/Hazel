@@ -1,5 +1,6 @@
 #include "hzpch.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
+//#include "Hazel/Renderer/Renderer.h"
 
 #include <stb_image.h>
 
@@ -17,15 +18,16 @@ namespace Hazel {
 		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
-		: m_Path(path)
+		
 	{
+		m_path = path;
 		HZ_PROFILE_FUNCTION();
 
 		int width, height, channels;
@@ -86,10 +88,15 @@ namespace Hazel {
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
-	void OpenGLTexture2D::Bind(uint32_t slot) const
+	void OpenGLTexture2D::Bind(uint32_t slot) 
 	{
 		HZ_PROFILE_FUNCTION();
 
 		glBindTextureUnit(slot, m_RendererID);
+		m_slot = slot;
+	}
+	void OpenGLTexture2D::ReBind() const
+	{
+		glBindTextureUnit(m_slot, m_RendererID);
 	}
 }

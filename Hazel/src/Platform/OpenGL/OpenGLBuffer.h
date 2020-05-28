@@ -56,7 +56,7 @@ namespace Hazel {
 		virtual uint32_t* GetTexture()  ;
 
 		virtual uint32_t AttachColorTexture2D(int Width, int height, int X, int Y) ;
-		virtual void AttachDepthTexture2D(int Width, int height) ;
+		virtual uint32_t AttachDepthTexture2D(int Width, int height) ;
 
 		virtual void FreeBuffer() const;
 	private:

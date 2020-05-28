@@ -55,12 +55,15 @@
 
 		std::vector<Hazel::Ref<Hazel::Material>> ListOfMaterials;
 
+		glm::vec3 lightpos = glm::vec3(0.f, 5.f, 0.f);
+
 		//Hazel::CameraController m_CameraController;
 
 		Hazel::Scene m_Scene;
 
 		uint32_t Buffer ;
 		uint32_t FrameBuffertexture;
+		uint32_t FrameBufferDepthTexture;
 		Hazel::Ref<Hazel::FrameBuffer> FrameBuffer;
 
 		ImVec2 ViewPortSize;

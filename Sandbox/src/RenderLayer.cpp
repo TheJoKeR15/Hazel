@@ -8,29 +8,62 @@
     {
 
         // Init
-        m_Scene.GetCameraController()->GetCamera().SetPosition(glm::vec3(0.f, 0.f, 5.f));
-
+        // setting more pleasent settings for the camera
+        m_Scene.GetCameraController()->GetCamera().SetPosition(glm::vec3(-100.f, 50, 0.f));
+        m_Scene.GetCameraController()->GetCamera().SetRotation(glm::vec3(-0.f, 90.f, 0.f));
+        m_Scene.GetCameraController()->m_FOV = 70;
+        m_Scene.GetCameraController()->m_CameraTranslationSpeed = 50.f;
         Buffer = 0;
         FrameBuffer = Hazel::FrameBuffer::Create(Buffer,1280,720);
 
+        
     }
 
     void RenderLayer::OnAttach()
     {
 
-
         MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
+
+        MainShader->Bind();
+
+        MainShader->SetFloat("u_LightIntensity", 1.f);
+        MainShader->SetFloat("u_LightRadius", 1.f);
+        MainShader->SetFloat("u_AmbiantLight", 0.1f);
+        MainShader->SetFloat3("u_LightPosition", lightpos);
+        MainShader->SetFloat3("u_LightColor", glm::vec3(01.f));
+
+        MainShader->Bind();
 
         ListOfMaterials.push_back(std::make_shared<Hazel::Material>(MainShader, "MainMaterial"));
 
-        GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj", ListOfMaterials[0]));
-        //GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj"));
+        auto text = Hazel::Texture2D::Create("assets/textures/Check.png");
+        auto text2 = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
+        //auto text2 = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
+        auto NewMat = std::make_shared<Hazel::Material>(MainShader, text, text2);
+        ListOfMaterials.push_back(NewMat);
+
+
+
+        GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj","Suzane", ListOfMaterials[1],MainShader));
+
+        //GetScene()->AddEnitity(new Hazel::Model("assets/Sponza/sponza.obj", "Sponza", ListOfMaterials[1],MainShader));
+
+        GetScene()->AddEnitity(new Hazel::Model("assets/nanosuit/nanosuit.obj", "NanoSuite", ListOfMaterials[1], MainShader));
+
+        GetScene()->GetEntities()[1]->position = glm::vec3(8.f,0.f,3.f);
+
+        GetScene()->AddEnitity(new Hazel::Model("assets/rock/rock.obj", "Rock", ListOfMaterials[1], MainShader));
+
+        GetScene()->GetEntities()[2]->position = glm::vec3(-5.f, 0.f, 3.f);
+
+
+
         if (GetScene()->GetEntities().size() > 0)
         {
             //SelectedEntity = GetScene()->GetEntities()[0];
         }
 
-        FrameBuffer->AttachColorTexture2D(1280, 720, 0, 0);
+        GetScene()->InitializeScene();
     }
 
     void RenderLayer::OnDetach()
@@ -41,14 +74,22 @@
 
     void RenderLayer::OnUpdate(Hazel::Timestep ts)
     {
-        //FrameBuffer->Bind(Buffer);
-        
+        //Bind the ViewportFrameBuffer
         FrameBuffer->Bind();
+
         FrameBuffertexture = FrameBuffer->AttachColorTexture2D(ViewPortSize.x, ViewPortSize.y ,ViewPortPosition.x,ViewPortPosition.y);
-
         // This Doesnt Work For the moment 
-        //FrameBuffer->AttachDepthTexture2D(ViewPortSize[0], ViewPortSize[1]);
+        FrameBufferDepthTexture = FrameBuffer->AttachDepthTexture2D(ViewPortSize.x, ViewPortSize.y);
 
+        MainShader->Bind();
+
+        MainShader->SetFloat("u_LightIntensity", 1.f);
+        MainShader->SetFloat("u_LightRadius", 1.f);
+        MainShader->SetFloat("u_AmbiantLight", 0.1f);
+        MainShader->SetFloat3("u_LightPosition", lightpos);
+        MainShader->SetFloat3("u_LightColor", glm::vec3(01.f));
+
+        MainShader->Bind();
         // Begin the scene FRAME START
         GetScene()->BeginScene();
 
@@ -60,6 +101,8 @@
 
         // Unbind the Framebuffer to let ImGui render
         FrameBuffer->Unbind();
+
+        //GetScene()->ClearScene();
     }
 
     void RenderLayer::OnImGuiRender()
@@ -79,6 +122,10 @@
 
         // add the scene settings tab
         ShowSceneSettings();
+
+        // add the debug Pannel
+        ShowDebugPanel();
+
 
         // Temporary
         ImGui::ShowDemoWindow();
@@ -231,13 +278,29 @@
         if (ImGui::Button("Add Entity"))
         {
 
-            GetScene()->AddEnitity(new Hazel::Model("assets/models/Cube.obj", ListOfMaterials[0], name));
+            GetScene()->AddEnitity(new Hazel::Model("assets/models/Cube.obj" ,name, ListOfMaterials[0],MainShader));
+        }
+        if (ImGui::Button("Add Sponza"))
+        {
+            GetScene()->AddEnitity(new Hazel::Model("assets/Sponza/sponza.obj","Sponza", ListOfMaterials[1],  MainShader));
+
+            GetScene()->GetEntities()[0]->scale = glm::vec3(0.1f);
         }
         for (int i = 0; i < ListOfMaterials.size(); i++)
         {
-            if (ImGui::TreeNode("List of Materials"))
+            std::string strng = std::string("Material ") + std::to_string(i);
+            if (ImGui::TreeNode(strng.c_str()))
             {
                 ImGui::Text(ListOfMaterials[i]->materialName.c_str());
+                if (ListOfMaterials[i]->bHasAlbedoTexture)
+                {
+                    ImGui::Text("Albedo pointer = %p", ListOfMaterials[i]->m_Albedo);
+
+                }
+                if (ListOfMaterials[i]->bHasSpecularTexture)
+                {
+                    ImGui::Text("Specullar pointer = %p", ListOfMaterials[i]->m_Specular);
+                }
                 ImGui::TreePop();
             }
         }
@@ -288,12 +351,56 @@
 
         for (int i = 0; i < GetScene()->GetEntities().size(); i++)
         {
+            auto entt = GetScene()->GetEntities()[i];
             std::string name = GetScene()->GetEntities()[i]->displayName;
             if (ImGui::TreeNode(name.c_str()))
             {
                 const char* list[] = { "Main Shader" };
                 int id;
-                ImGui::Combo("Shader", &id, list, IM_ARRAYSIZE(list));
+                //ImGui::Combo("Shader", &id, list, IM_ARRAYSIZE(list));
+                if (ImGui::TreeNode("Position"))
+                {
+                    ImGui::SliderFloat("##X", &entt->position.x, -5.f, 5.f, "X = %.3f");
+                    ImGui::SliderFloat("##Y", &entt->position.y, -5.f, 5.f, "Y = %.3f");
+                    ImGui::SliderFloat("##Z", &entt->position.z, -5.f, 5.f, "Z = %.3f");
+                    ImGui::TreePop();
+                }
+                ImGui::Separator();
+                if (ImGui::TreeNodeEx("Rotation"))
+                {
+                    ImGui::SliderAngle("##X2", &entt->rotation.x, -90.f, 90.f, "Pitch = %.3f");
+                    ImGui::SliderAngle("##Y2", &entt->rotation.y, -90.f, 90.f, "Yaw = %.3f");
+                    ImGui::SliderAngle("##Z2", &entt->rotation.z, -90.f, 90.f, "Roll = %.3f");
+                    ImGui::TreePop();
+                }
+                ImGui::Separator();
+                if (ImGui::TreeNodeEx("Scale"))
+                {
+                    ImGui::SliderFloat("##X3", &entt->scale.x, -90.f, 90.f, "X = %.3f");
+                    ImGui::SliderFloat("##Y3", &entt->scale.y, -90.f, 90.f, "Y = %.3f");
+                    ImGui::SliderFloat("##Z3", &entt->scale.z, -90.f, 90.f, "Z = %.3f");
+                    ImGui::TreePop();
+                }
+                if (ImGui::TreeNodeEx("Meshes"))
+                {
+                    auto model = dynamic_cast<Hazel::Model*>(entt);
+                        if (model)
+                        {
+                            for (int i = 0; i < model->Getmeshes().size(); i++)
+                            {
+                                if (ImGui::TreeNodeEx((model->Getmeshes()[i].m_name.c_str())))
+                                {
+                                    ImGui::Text(("Material :" + model->Getmeshes()[i].m_Material->materialName).c_str());
+                                    if (model->Getmeshes()[i].m_Material->m_Albedo) ImGui::Text(("Albedo texture :" + model->Getmeshes()[i].m_Material->m_Albedo->m_path).c_str());
+                                    if (model->Getmeshes()[i].m_Material->m_Specular)ImGui::Text(("Spec texture :" + model->Getmeshes()[i].m_Material->m_Specular->m_path).c_str());
+                                    ImGui::TreePop();
+                                }
+                            }
+                        }
+                    
+                    ImGui::TreePop();
+                }
+                ImGui::Separator();
                 ImGui::TreePop();
             }
         }

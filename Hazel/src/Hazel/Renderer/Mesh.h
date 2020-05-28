@@ -1,31 +1,29 @@
 #pragma once
 
 #include "glm/glm.hpp"
-//#include "Hazel/Renderer/Texture.h"
-#include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/Material.h"
 #include "Hazel/Renderer/VertexArray.h"
 
 #include "Hazel/Renderer/Vertex.h"
 
-class Texture;
 
-namespace Hazel {
+
 	class Mesh
 	{
 	public:
 		
 		std::vector<Vertex>			m_vertices;
 		std::vector<uint32_t>	m_indices;
-		glm::mat4 transform;
-		//std::vector<Texture>	m_textures;
+		//glm::mat4 transform;
+		Hazel::Ref<Hazel::Material>	m_Material;
 
-		Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+		std::string m_name;
+
+		Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Hazel::Ref<Hazel::Material> Material, std::string name = "UNNAMED MESH");
 		
 		void Draw(Hazel::Ref<Hazel::Shader> shader);
 
 		void Draw(Hazel::Ref<Hazel::Shader> shader,glm::mat4 Transform);
-
-		void DrawCube(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform);
 
 	private:
 		//  render data
@@ -38,5 +36,5 @@ namespace Hazel {
 		
 
 	};
-}
+
 

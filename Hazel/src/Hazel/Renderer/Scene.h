@@ -31,6 +31,8 @@ namespace Hazel {
 
 		void HandleEvent(Hazel::Event& e);
 
+		void ClearScene();
+
 		glm::vec3* GetBackGroundColor() { return &BackGroundColor; };
 
 		std::vector<Entity*>& GetEntities() { return Entities; };

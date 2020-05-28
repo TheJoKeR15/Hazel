@@ -138,9 +138,10 @@ namespace Hazel {
 		glBindFramebuffer(GL_FRAMEBUFFER, Buffer);
 		// Creating a texture for a framebuffer
 
+		glGenRenderbuffers(1, &RenderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, RenderBuffer);
 
-		
-		
+				
 
 		
 	}
@@ -181,23 +182,22 @@ namespace Hazel {
 
 		//attach it to the framebuffer:
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureBuffer, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		
 
 		return TextureBuffer;
 	}
 
-	void OpenGLFrameBuffer::AttachDepthTexture2D(int width, int height) 
+	uint32_t OpenGLFrameBuffer::AttachDepthTexture2D(int width, int height)
 	{
-		glGenRenderbuffers(1, &RenderBuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, RenderBuffer);
-
 
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RenderBuffer); // now actually attach it
 		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		return RenderBuffer;
 	}
 
 	void OpenGLFrameBuffer::FreeBuffer() const
