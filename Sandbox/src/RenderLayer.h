@@ -41,9 +41,11 @@
 
 		float GetViewPortSizeY();
 
-		
+		void FocusToSelected();
 
-		Hazel::Scene* RenderLayer::GetScene();
+		Hazel::Scene* RenderLayer::GetScene() {
+			return &m_Scene;
+		};
 
 
 	private:
@@ -58,7 +60,7 @@
 
 		glm::vec3 lightpos = glm::vec3(0.f, 5.f, 0.f);
 
-		Hazel::Entity* SelectedEntity;
+		Hazel::Entity* SelectedEntity = nullptr;
 
 		GizmoOverlay* m_GizmoLayer;
 

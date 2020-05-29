@@ -41,5 +41,6 @@
 #include "Hazel/Renderer/Mesh.h"
 #include "Hazel/Renderer/Model.h"
 
-#include "Hazel/Renderer/Light.h"
+#include "Hazel/Renderer/Lights/Light.h"
+//#include "Hazel/Renderer/Lights/DirectionalLight.h"
 // -----------------------------------

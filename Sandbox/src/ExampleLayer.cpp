@@ -127,7 +127,7 @@ ExampleLayer::ExampleLayer()
 	//Hazel::Scene* MyScene = new Hazel::Scene();
 	//MyScene->InitializeScene();
 
-	m_Light = new Hazel::Light(MainShader);
+	//m_Light = new Hazel::Light(MainShader);
 
 	auto Mat = std::make_shared<Hazel::Material>(MainShader);
 	

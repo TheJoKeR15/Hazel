@@ -4,11 +4,16 @@
 
 namespace Hazel {
 
-	Scene::Scene(float Width, float Height) : m_CameraController(Width / Height, glm::vec3(0.f, 0.f, 5.f)), m_Width(Width), m_Height(Height)
+	Scene::Scene(float Width, float Height, Hazel::Ref<Hazel::Shader> shader) : m_CameraController(Width / Height, glm::vec3(0.f, 0.f, 5.f))
+		, m_Width(Width), m_Height(Height) , m_shader(shader)
 	{
 		InitializeScene();
 	};
-
+	Scene::Scene(float Width, float Height) : m_CameraController(Width / Height, glm::vec3(0.f, 0.f, 5.f))
+		, m_Width(Width), m_Height(Height)
+	{
+		InitializeScene();
+	};
 	void Scene::InitializeScene()
 	{
 		HZ_CORE_INFO("Scene Initialized");
@@ -65,6 +70,20 @@ namespace Hazel {
 	{
 		newEntinity->UniqueID = EntityIndex++;
 		Entities.push_back(newEntinity);
+	}
+
+	//void Scene::AddPointLight(PointLight* newEntinity)
+	//{
+	//	newEntinity->UniqueID = EntityIndex++;
+	//	newEntinity->m_id = PointLightIndex++;
+	//	Entities.push_back(newEntinity);
+	//	PointLights.push_back(newEntinity);
+	//}
+	void Scene::AddDirectionalLight(Entity* newEntinity)
+	{
+	}
+	void Scene::AddSpotLight(Entity* newEntinity)
+	{
 	}
 	void Scene::RemoveEnitity(uint32_t ID)
 	{

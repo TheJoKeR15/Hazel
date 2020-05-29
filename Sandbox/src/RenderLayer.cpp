@@ -3,7 +3,8 @@
 #include "imgui/imgui.h"
 #include <glm/gtc/type_ptr.hpp>
 
-
+#include "Hazel/Core/Input.h"
+#include "Hazel.h"
 
 #include "ImGuizmo/ImGuizmo.h"
 
@@ -12,7 +13,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         // Init
         // setting more pleasent settings for the camera
-
+        MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
         Buffer = 0;
         FrameBuffer = Hazel::FrameBuffer::Create(Buffer,1280,720);
 
@@ -22,7 +23,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
     void RenderLayer::OnAttach()
     {
 
-        MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
+        
 
         
 
@@ -36,7 +37,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
 
 
-        GetScene()->AddEnitity(new Hazel::Model("assets/models/Suzane.obj","Suzane", ListOfMaterials[1],MainShader));
+        GetScene()->AddEnitity(new Hazel::Model("assets/Scene.obj","Suzane", ListOfMaterials[1],MainShader));
 
         //GetScene()->AddEnitity(new Hazel::Model("assets/Sponza/sponza.obj", "Sponza", ListOfMaterials[1],MainShader));
 
@@ -48,17 +49,26 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         
         GetScene()->GetEntities()[2]->position = glm::vec3(-5.f, 0.f, 3.f);
 
-        GetScene()->AddEnitity(new Hazel::Light(MainShader));
 
+
+        GetScene()->AddEnitity(new Hazel::Model("assets/Wall.obj", "Suzane", ListOfMaterials[1], MainShader));
         
          
-        GetScene()->GetEntities()[3]->position = glm::vec3(-5.f, 10.f, 3.f);
+        GetScene()->GetEntities()[3]->SetPosition(glm::vec3(-5.f, 15.f, 3.f));
 
-        m_Light = dynamic_cast<Hazel::Light*>(GetScene()->GetEntities()[3]);
+        
 
+        GetScene()->AddEnitity(new Hazel::PointLight(MainShader, 0));
+
+        GetScene()->AddEnitity(new Hazel::PointLight(MainShader, 1));
+
+        //GetScene()->AddEnitity(new Hazel::DirectionalLight(MainShader));
+
+        GetScene()->AddEnitity(new Hazel::SpotLight(MainShader, 0));
+        m_Light = dynamic_cast<Hazel::Light*>(GetScene()->GetEntities()[6]);
         if (GetScene()->GetEntities().size() > 0)
         {
-            SelectEntity(GetScene()->GetEntities()[0]);
+            SelectEntity(GetScene()->GetEntities()[6]);
         }
 
         m_Scene.GetCameraController()->GetCamera().SetPosition(glm::vec3(-100.f, 50, 0.f));
@@ -86,12 +96,11 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         MainShader->Bind();
         
+        
+        
+        MainShader->SetFloat("AmbientLight", GetScene()->GetAmbientLighting());
 
-        MainShader->SetFloat("u_LightIntensity", m_Light->Intensity);
-        MainShader->SetFloat("u_LightRadius", m_Light->Radius);
-        MainShader->SetFloat("u_AmbiantLight", 0.05f);
-        MainShader->SetFloat3("u_LightPosition", m_Light->position);
-        MainShader->SetFloat3("u_LightColor", m_Light->LightColor);
+        
         MainShader->SetFloat3("CameraPosition", GetScene()->GetCameraController()->GetCamera().GetPosition());
 
 
@@ -164,6 +173,10 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
     void RenderLayer::OnEvent(Hazel::Event& e)
     {
+        if (Hazel::Input::IsKeyPressed(HZ_KEY_F))
+        {
+            FocusToSelected();
+        }
         GetScene()->GetCameraController()->OnEvent(e);
     }
 
@@ -175,6 +188,11 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
     float RenderLayer::GetViewPortSizeY()
     {
         return ViewPortSize[1];
+    }
+
+    void RenderLayer::FocusToSelected()
+    {
+        GetScene()->GetCameraController()->m_CameraPosition = SelectedEntity->position;
     }
 
 
@@ -291,14 +309,17 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         {
             SelectedEntity->bIsSelected = false;
         }
-
-        SelectedEntity = newSelectedEntity;
-        SelectedEntity->bIsSelected = true;
+        if (!(SelectedEntity == newSelectedEntity))
+        {
+            SelectedEntity = newSelectedEntity;
+            SelectedEntity->bIsSelected = true;
+        }
     }
 
     void RenderLayer::ShowSceneSettings()
     {
         ImGui::Begin("Scene Settings");
+        ImGui::DragFloat("Ambient Lighting ", &GetScene()->GetAmbientLighting());
         ImGui::ColorEdit3("Background Color ", glm::value_ptr(*GetScene()->GetBackGroundColor()));
         ImGui::End();
     }
@@ -389,6 +410,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         ImGui::Begin("Outliner");
         if (ImGui::TreeNode("Light"))
         {
+            
             ImGui::ColorEdit3("Color", glm::value_ptr(m_Light->LightColor));
             ImGui::SliderFloat("Intensity", &m_Light->Intensity, -5.f, 5.f);
             if (ImGui::TreeNode("Position"))
@@ -399,8 +421,18 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
                 ImGui::TreePop();
 
             }
+            if (ImGui::TreeNodeEx("Rotation"))
+            {
+                ImGui::SliderAngle("##X2", &m_Light->rotation.x, -90.f, 90.f, "Pitch = %.3f");
+                ImGui::SliderAngle("##Y2", &m_Light->rotation.y, -90.f, 90.f, "Yaw = %.3f");
+                ImGui::SliderAngle("##Z2", &m_Light->rotation.z, -90.f, 90.f, "Roll = %.3f");
+                ImGui::TreePop();
+            }
             if (ImGui::TreeNode("Advanced"))
             {
+                ImGui::SliderFloat("Forward Direction x", &m_Light->ForwardVector.x, -1.f,1.f);
+                ImGui::SliderFloat("Forward Direction y", &m_Light->ForwardVector.y, -1.f,1.f);
+                ImGui::SliderFloat("Forward Direction z", &m_Light->ForwardVector.z, -1.f,1.f);
                 ImGui::Checkbox("Visible ", &m_Light->bVisible);
                 ImGui::Checkbox("Active ", &m_Light->bActive);
                 ImGui::TreePop();
@@ -409,23 +441,21 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
             
         }
+
+
         for (int i = 0; i < GetScene()->GetEntities().size(); i++)
         {
             auto entt = GetScene()->GetEntities()[i];
             std::string name = GetScene()->GetEntities()[i]->displayName;
             if (ImGui::TreeNode(name.c_str()))
             {
-                const char* list[] = { "Main Shader" };
-                int id;
-                //ImGui::Combo("Shader", &id, list, IM_ARRAYSIZE(list));
                 if (ImGui::TreeNode("Position"))
-                {
-                    ImGui::SliderFloat("##X", &entt->position.x, -5.f, 5.f, "X = %.3f");
-                    ImGui::SliderFloat("##Y", &entt->position.y, -5.f, 5.f, "Y = %.3f");
-                    ImGui::SliderFloat("##Z", &entt->position.z, -5.f, 5.f, "Z = %.3f");
-                    ImGui::TreePop();
-                }
-                ImGui::Separator();
+                        {
+                            ImGui::SliderFloat("##X", &entt->position.x, -5.f, 5.f, "X = %.3f");
+                            ImGui::SliderFloat("##Y", &entt->position.y, -5.f, 5.f, "Y = %.3f");
+                            ImGui::SliderFloat("##Z", &entt->position.z, -5.f, 5.f, "Z = %.3f");
+                            ImGui::TreePop();
+                        }
                 if (ImGui::TreeNodeEx("Rotation"))
                 {
                     ImGui::SliderAngle("##X2", &entt->rotation.x, -90.f, 90.f, "Pitch = %.3f");
@@ -433,7 +463,6 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
                     ImGui::SliderAngle("##Z2", &entt->rotation.z, -90.f, 90.f, "Roll = %.3f");
                     ImGui::TreePop();
                 }
-                ImGui::Separator();
                 if (ImGui::TreeNodeEx("Scale"))
                 {
                     ImGui::SliderFloat("##X3", &entt->scale.x, -90.f, 90.f, "X = %.3f");
@@ -441,6 +470,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
                     ImGui::SliderFloat("##Z3", &entt->scale.z, -90.f, 90.f, "Z = %.3f");
                     ImGui::TreePop();
                 }
+                ImGui::Separator();
                 if (ImGui::TreeNodeEx("Meshes"))
                 {
                     auto model = dynamic_cast<Hazel::Model*>(entt);
@@ -465,6 +495,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
                 ImGui::Separator();
                 ImGui::TreePop();
             }
+            
         }
         ImGui::End();
     }
@@ -511,8 +542,5 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         }
     }
 
-    Hazel::Scene* RenderLayer::GetScene()
-    {
-        return &m_Scene;
-    }
+
 

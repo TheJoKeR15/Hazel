@@ -51,6 +51,8 @@ namespace Hazel {
 
 			m_CameraPosition += m_CameraTranslationSpeed * ts * m_Camera.m_CameraUp;
 		}
+
+
 		
 		
 		if (Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_RIGHT))
@@ -77,6 +79,7 @@ namespace Hazel {
 
 		m_Camera.SetPosition(m_CameraPosition);
 		
+
 		
 
 		//m_CameraTranslationSpeed = m_ZoomLevel;

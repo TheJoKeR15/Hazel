@@ -2,7 +2,9 @@
 #include "Entity.h"
 
 namespace Hazel {
-
+	Entity::Entity() : UniqueID(0)
+	{
+	}
 	Entity::Entity(uint32_t ID) : displayName("UNAMED ENTITY") , UniqueID(ID)
 	{
 		OnConstruct();

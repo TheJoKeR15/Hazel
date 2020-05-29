@@ -19,7 +19,7 @@ namespace Hazel {
     {
     public:
 
-        Model(char* path, std::string Inname, Hazel::Ref<Hazel::Material> Material,Hazel::Ref<Hazel::Shader> shader)
+        Model(std::string path, std::string Inname, Hazel::Ref<Hazel::Material> Material,Hazel::Ref<Hazel::Shader> shader)
             : m_path(path), m_Material(Material), m_Shader(shader),Entity(Inname)
         {
             loadModel(path);
@@ -41,7 +41,7 @@ namespace Hazel {
 
         void Draw(Hazel::Ref<Hazel::Shader> shader,glm::mat4 Transform);
 
-        char* GetPath() { return m_path; };
+        const std::string& GetPath() { return m_path; };
 
         
         // @TODO : REPLACE this with an ECS or component system later
@@ -64,7 +64,7 @@ namespace Hazel {
         std::vector<Ref<Texture2D>> textures_loaded;
        // std::vector<Ref<Texture2D>> textures;
         std::string directory;
-        char* m_path;
+        std::string m_path;
         void loadModel(std::string path);
         void processNode(aiNode* node, const aiScene* scene);
         Mesh processMesh(aiMesh* mesh, const aiScene* scene);

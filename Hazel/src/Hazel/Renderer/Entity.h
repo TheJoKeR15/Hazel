@@ -13,6 +13,7 @@ namespace Hazel {
 	class Entity
 	{
 	public:
+		Entity();
 		Entity(uint32_t ID = 0);
 
 		Entity(std::string name, uint32_t ID = 0);
@@ -77,15 +78,38 @@ namespace Hazel {
 				* glm::rotate(glm::mat4(1.0f), rotation.g, glm::vec3(0, 1, 0))
 				* glm::rotate(glm::mat4(1.0f), rotation.b, glm::vec3(0, 0, 1))
 				* glm::scale(glm::mat4(1.0f), scale);
+			ForwardVector = WorldForwardVector * transform;
+
+			UpVector = WorldUpVector * transform;
+
+			RightVector = WorldRightVector * transform;
 			}
 		};
 		void RecalculateTransforms(glm::mat4* newTransf)
 		{
 			transform = *newTransf;
+
+			ForwardVector = transform * WorldForwardVector ;
+
+			UpVector = transform * WorldUpVector;
+
+			RightVector = transform * WorldRightVector;
 		};
 
 	
 		glm::vec3 position = glm::vec3(0.f, 0.f, 0.0f);
+
+		glm::vec4 ForwardVector = glm::vec4(1.f, 0.f, 0.0f, 0.f);
+				
+		glm::vec4 UpVector = glm::vec4(0.f, 1.f, 0.0f, 0.f);
+				
+		glm::vec4 RightVector = glm::vec4(0.f, 1.f, 1.0f, 0.f);
+				
+		glm::vec4 WorldForwardVector = glm::vec4(1.f, 0.f, 0.0f, 0.f);
+				
+		glm::vec4 WorldUpVector = glm::vec4(0.f, 1.f, 0.0f, 0.f);
+				
+		glm::vec4 WorldRightVector = glm::vec4(0.f, 1.f, 1.0f,0.f);
 
 		glm::vec3 rotation = glm::vec3(0.f, 0.f, 0.0f);
 
