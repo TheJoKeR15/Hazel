@@ -45,6 +45,9 @@ glm::fmat4 GizmoOverlay::DrawGizmo()
 {
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::BeginFrame();
+    if (SelectedEntity)
+    {
+
     
     transform = *SelectedEntity->GetTransform();
     EditTransform(&view[0][0], &projection[0][0], &transform[0][0]);
@@ -55,7 +58,7 @@ glm::fmat4 GizmoOverlay::DrawGizmo()
     SelectedEntity->SetRotation(glm::eulerAngles(glm::conjugate(rotation)));
     SelectedEntity->SetScale(scale);
     SelectedEntity->RecalculateTransforms(&transform);
-
+    }
     return transform;
 }
 
@@ -98,8 +101,7 @@ void GizmoOverlay::DrawPannels()
             if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
                 mCurrentGizmoMode = ImGuizmo::WORLD;
         }
-        if (ImGui::IsKeyPressed(83))
-            useSnap = !useSnap;
+
         ImGui::Checkbox("", &useSnap);
         ImGui::SameLine();
 

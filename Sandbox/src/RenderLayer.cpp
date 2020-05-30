@@ -37,24 +37,24 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
 
 
-        GetScene()->AddEnitity(new Hazel::Model("assets/Scene.obj","Suzane", ListOfMaterials[1],MainShader));
+        //GetScene()->AddEnitity(new Hazel::Model("assets/Scene.obj","Suzane", ListOfMaterials[1],MainShader));
 
         //GetScene()->AddEnitity(new Hazel::Model("assets/Sponza/sponza.obj", "Sponza", ListOfMaterials[1],MainShader));
-
+        //GetScene()->GetEntities()[0]->scale = glm::vec3(0.1f);
         GetScene()->AddEnitity(new Hazel::Model("assets/nanosuit/nanosuit.obj", "NanoSuite", ListOfMaterials[1], MainShader));
 
-        GetScene()->GetEntities()[1]->position = glm::vec3(8.f,0.f,3.f);
+        GetScene()->GetEntities()[0]->position = glm::vec3(8.f,0.f,3.f);
 
         GetScene()->AddEnitity(new Hazel::Model("assets/rock/rock.obj", "Rock", ListOfMaterials[1], MainShader));
         
-        GetScene()->GetEntities()[2]->position = glm::vec3(-5.f, 0.f, 3.f);
+        GetScene()->GetEntities()[1]->position = glm::vec3(-5.f, 0.f, 3.f);
 
 
 
-        GetScene()->AddEnitity(new Hazel::Model("assets/Wall.obj", "Suzane", ListOfMaterials[1], MainShader));
+        //GetScene()->AddEnitity(new Hazel::Model("assets/Wall.obj", "Suzane", ListOfMaterials[1], MainShader));
         
          
-        GetScene()->GetEntities()[3]->SetPosition(glm::vec3(-5.f, 15.f, 3.f));
+        //GetScene()->GetEntities()[3]->SetPosition(glm::vec3(-5.f, 15.f, 3.f));
 
         
 
@@ -64,11 +64,11 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         //GetScene()->AddEnitity(new Hazel::DirectionalLight(MainShader));
 
-        GetScene()->AddEnitity(new Hazel::SpotLight(MainShader, 0));
-        m_Light = dynamic_cast<Hazel::Light*>(GetScene()->GetEntities()[6]);
+        //GetScene()->AddEnitity(new Hazel::SpotLight(MainShader, 0));
+        //m_Light = dynamic_cast<Hazel::Light*>(GetScene()->GetEntities()[6]);
         if (GetScene()->GetEntities().size() > 0)
         {
-            SelectEntity(GetScene()->GetEntities()[6]);
+            //SelectEntity(GetScene()->GetEntities()[3]);
         }
 
         m_Scene.GetCameraController()->GetCamera().SetPosition(glm::vec3(-100.f, 50, 0.f));
@@ -327,8 +327,15 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
     void RenderLayer::ShowDebugPanel()
     {
         ImGui::Begin("Debug");
-
+        if (SelectedEntity)
+        {
         ImGui::Text(("Currently selected = " + SelectedEntity->displayName).c_str());
+        }
+        else
+        {
+            ImGui::Text("Currently selected = NONE " );
+        }
+        
         ImGui::Text("Frame Buffer pointer = %p", FrameBuffertexture);
         ImGui::Text("ViewPort size = %f x %f", ViewPortSize.x, ViewPortSize.y);
         ImGui::Text("ViewPort Position = %f x %f", ViewPortPosition.x, ViewPortPosition.y);
@@ -344,7 +351,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
             GetScene()->AddEnitity(new Hazel::Model("assets/Sponza/sponza.obj","Sponza", ListOfMaterials[1],  MainShader));
 
             auto n = GetScene()->GetEntities().size();
-            GetScene()->GetEntities()[n]->scale = glm::vec3(0.1f);
+            GetScene()->GetEntities()[n-1]->scale = glm::vec3(0.1f);
         }
         for (int i = 0; i < ListOfMaterials.size(); i++)
         {
@@ -407,48 +414,33 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
     void RenderLayer::ShowOutliner()
     {
+        static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+        static int selection_mask = (1 << 2); // Dumb representation of what may be user-side selection state. You may carry selection state inside or outside your objects in whatever format you see fit.
+        int node_clicked = -1;                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be a pointer to your own node type, etc.
+               
         ImGui::Begin("Outliner");
-        if (ImGui::TreeNode("Light"))
-        {
-            
-            ImGui::ColorEdit3("Color", glm::value_ptr(m_Light->LightColor));
-            ImGui::SliderFloat("Intensity", &m_Light->Intensity, -5.f, 5.f);
-            if (ImGui::TreeNode("Position"))
-            {
-                ImGui::SliderFloat("x", &m_Light->position.x, -50.f, 50.f);
-                ImGui::SliderFloat("y", &m_Light->position.y, -50.f, 50.f);
-                ImGui::SliderFloat("z", &m_Light->position.z, -50.f, 50.f);
-                ImGui::TreePop();
-
-            }
-            if (ImGui::TreeNodeEx("Rotation"))
-            {
-                ImGui::SliderAngle("##X2", &m_Light->rotation.x, -90.f, 90.f, "Pitch = %.3f");
-                ImGui::SliderAngle("##Y2", &m_Light->rotation.y, -90.f, 90.f, "Yaw = %.3f");
-                ImGui::SliderAngle("##Z2", &m_Light->rotation.z, -90.f, 90.f, "Roll = %.3f");
-                ImGui::TreePop();
-            }
-            if (ImGui::TreeNode("Advanced"))
-            {
-                ImGui::SliderFloat("Forward Direction x", &m_Light->ForwardVector.x, -1.f,1.f);
-                ImGui::SliderFloat("Forward Direction y", &m_Light->ForwardVector.y, -1.f,1.f);
-                ImGui::SliderFloat("Forward Direction z", &m_Light->ForwardVector.z, -1.f,1.f);
-                ImGui::Checkbox("Visible ", &m_Light->bVisible);
-                ImGui::Checkbox("Active ", &m_Light->bActive);
-                ImGui::TreePop();
-            }
-            ImGui::TreePop();
-
-            
-        }
-
-
+        bool p_selected = false;
         for (int i = 0; i < GetScene()->GetEntities().size(); i++)
         {
             auto entt = GetScene()->GetEntities()[i];
             std::string name = GetScene()->GetEntities()[i]->displayName;
-            if (ImGui::TreeNode(name.c_str()))
-            {
+            
+
+                // Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
+                ImGuiTreeNodeFlags node_flags = base_flags;
+                const bool is_selected = (selection_mask & (1 << i)) != 0;
+                if (is_selected)
+                    node_flags |= ImGuiTreeNodeFlags_Selected;
+
+                // Items 0..2 are Tree Node
+                bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, name.c_str());
+
+                if (ImGui::IsItemClicked())
+                    node_clicked = i;
+
+                if (node_open)
+                {
+               
                 if (ImGui::TreeNode("Position"))
                         {
                             ImGui::SliderFloat("##X", &entt->position.x, -5.f, 5.f, "X = %.3f");
@@ -495,7 +487,22 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
                 ImGui::Separator();
                 ImGui::TreePop();
             }
-            
+                if (node_clicked != -1)
+                {
+                    // Update selection state. Process outside of tree loop to avoid visual inconsistencies during the clicking-frame.
+                    if (ImGui::GetIO().KeyCtrl)
+                        selection_mask ^= (1 << node_clicked);          // CTRL+click to toggle
+                    else //if (!(selection_mask & (1 << node_clicked))) // Depending on selection behavior you want, this commented bit preserve selection when clicking on item that is part of the selection
+                        selection_mask = (1 << node_clicked);           // Click to single-select
+                }
+                if (node_clicked > -1)
+                {
+                    SelectEntity(GetScene()->GetEntities()[node_clicked]);
+                }
+                else
+                {
+                    //SelectEntity(nullptr);
+                }
         }
         ImGui::End();
     }
