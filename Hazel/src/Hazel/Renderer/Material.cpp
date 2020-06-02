@@ -1,7 +1,7 @@
 #include "hzpch.h"
 #include "Material.h"
 
-Hazel::Material::Material(Hazel::Ref<Hazel::Shader> Shader, std::string Name) : m_Shader(Shader), materialName(Name)
+Hazel::Material::Material(Hazel::Ref<Hazel::Shader> Shader, const std::string& Name) : m_Shader(Shader), materialName(Name)
 {
 	TintBaseColor = glm::vec3(1.f);
 	SpecularExponent = 128.f;

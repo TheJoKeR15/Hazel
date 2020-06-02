@@ -56,6 +56,8 @@ uniform float AmbientLight;
 
 uniform vec3 BasecolorTint;
 
+uniform bool bMaseked = true;
+
 uniform bool bHasAlbedoTexture = false;
 uniform bool bHasSpeclarTexture = false;
 
@@ -64,6 +66,8 @@ uniform bool bHasSpeclarTexture = false;
  const float constant =  1.0f;
  const float linear =     0.0f;
  const float quadratic = 0.032f;
+
+ const float AlphaClip = 0.33;
 
 
 vec3 CalcDirLight(DirrectionalLight light, vec3 normal, vec3 viewDirection)
@@ -179,7 +183,10 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDirectio
   
 void main()
 {
-
+    if (texture(t_BaseColor, v_TexCoord).a < AlphaClip)
+    {
+        discard;
+    }
     // DIFFUSE //
     // normalizing the normals
     vec3 Normal = normalize(v_Normal);

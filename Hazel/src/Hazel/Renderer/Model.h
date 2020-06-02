@@ -19,7 +19,7 @@ namespace Hazel {
     {
     public:
 
-        Model(std::string path, std::string Inname, Hazel::Ref<Hazel::Material> Material,Hazel::Ref<Hazel::Shader> shader)
+        Model(const std::string& path, const std::string& Inname, Hazel::Ref<Hazel::Material> Material,Hazel::Ref<Hazel::Shader> shader)
             : m_path(path), m_Material(Material), m_Shader(shader),Entity(Inname)
         {
             loadModel(path);
@@ -65,10 +65,12 @@ namespace Hazel {
        // std::vector<Ref<Texture2D>> textures;
         std::string directory;
         std::string m_path;
-        void loadModel(std::string path);
+        void loadModel(const std::string& path);
         void processNode(aiNode* node, const aiScene* scene);
         Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-        Ref<Texture2D> loadMaterialTexture(aiMaterial* mat, aiTextureType type, std::string typeName);
+        Ref<Texture2D> loadMaterialTexture(aiMaterial* mat, aiTextureType type,const char* typeName);
+
+        float timePassed = 0.f;
         //std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,std::string typeName);
     };
 }

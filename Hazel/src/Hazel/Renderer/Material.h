@@ -11,7 +11,7 @@ namespace Hazel {
 	struct Material
 	{
 	public:
-		Material(Hazel::Ref <Hazel::Shader> Shader,std::string Name);
+		Material(Hazel::Ref <Hazel::Shader> Shader, const std::string& Name);
 
 		Material(Hazel::Ref <Hazel::Shader> Shader);
 
@@ -42,6 +42,7 @@ namespace Hazel {
 		// BOOLS
 		bool bHasAlbedoTexture = false;
 		bool bHasSpecularTexture = false;
+		bool bMaseked = false;
 
 	private:
 		Hazel::Ref <Hazel::Shader> m_Shader;

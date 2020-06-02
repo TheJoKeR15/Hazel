@@ -19,7 +19,7 @@
 
 		std::string m_name;
 
-		Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Hazel::Ref<Hazel::Material> Material, std::string name = "UNNAMED MESH");
+		Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, Hazel::Ref<Hazel::Material> Material,const std::string& name = "UNNAMED MESH");
 		
 		void Draw(Hazel::Ref<Hazel::Shader> shader);
 

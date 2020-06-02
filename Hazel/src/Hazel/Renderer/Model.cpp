@@ -1,6 +1,8 @@
 #include "hzpch.h"
 #include "Model.h"
 
+#include <ctime>  
+
 namespace Hazel {
 
     void Model::Draw(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform)
@@ -16,7 +18,7 @@ namespace Hazel {
 	{
 
         m_Material->Initialization();
-        std::cout << "INITIALIZING MODEL" << std::endl;
+        //std::cout << "INITIALIZING MODEL" << std::endl;
 	}
 
 	void Model::OnBeginFrame()
@@ -54,8 +56,11 @@ namespace Hazel {
 
     }
 
-    void Model::loadModel(std::string path)
+    void Model::loadModel(const std::string& path)
     {
+        auto start = std::chrono::system_clock::now();
+
+
         Assimp::Importer import;
         const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -69,16 +74,28 @@ namespace Hazel {
 
         processNode(scene->mRootNode, scene);
 
+        HZ_INFO("Loaded model {0} with {1} meshes", displayName, meshes.size());
         //std::cout << "Loaded model with " << meshes.size() << " meshes \n" ;
+
+        // Some computation here
+        auto end = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> elapsed_seconds = end - start;
+
+        timePassed = elapsed_seconds.count();
+        HZ_INFO("Loaded model in {0} s.", timePassed);
     }
 
 
     void Model::processNode(aiNode* node, const aiScene* scene)
     {
+        // Reseve the right amount of memory in meshes vector
+        meshes.reserve(node->mNumMeshes);
         // process all the node's meshes (if any)
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
         {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+            // construct the mesh inside the veector memory to gain performances
             meshes.push_back(processMesh(mesh, scene));
             
         }
@@ -97,7 +114,8 @@ namespace Hazel {
         // data to fill
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
-        
+        vertices.reserve(mesh->mNumVertices);
+        indices.reserve(mesh->mNumFaces*3);
 
         // walk through each of the mesh's vertices
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -152,18 +170,24 @@ namespace Hazel {
         
         // process materials
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        if (material->mNumProperties)
+        if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
         {
+            
              Hazel::Ref<Hazel::Material> Mat = std::make_shared<Hazel::Material>(m_Shader, material->GetName().C_Str());
              
              Mat->m_Albedo = loadMaterialTexture(material, aiTextureType_DIFFUSE, "Diffuse");
-             Mat->m_Specular = loadMaterialTexture(material, aiTextureType_SPECULAR, "Specular");
+             if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
+                Mat->m_Specular = loadMaterialTexture(material, aiTextureType_SPECULAR, "Specular");
              if (Mat->m_Albedo || Mat->m_Specular)
              {
-                 return Mesh(vertices, indices, Mat);
+                 return Mesh(vertices, indices, Mat, mesh->mName.C_Str());
              }
         }
-
+        else
+        {
+            // return a mesh object created from the extracted mesh data
+            return Mesh(vertices, indices, m_Material, mesh->mName.C_Str());
+        }
         // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
         // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER.
         // Same applies to other texture as the following list summarizes:
@@ -188,11 +212,10 @@ namespace Hazel {
         std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
         */
-        // return a mesh object created from the extracted mesh data
-        return Mesh(vertices, indices,m_Material,mesh->mName.C_Str());
+
     }
 
-    Ref<Texture2D> Model::loadMaterialTexture(aiMaterial* mat, aiTextureType type, std::string typeName)
+    Ref<Texture2D> Model::loadMaterialTexture(aiMaterial* mat, aiTextureType type, const char* typeName)
     {
         Ref<Texture2D> texture;
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)

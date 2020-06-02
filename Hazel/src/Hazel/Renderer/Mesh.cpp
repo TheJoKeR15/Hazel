@@ -3,12 +3,14 @@
 #include "Renderer.h"
 #include "Material.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, Hazel::Ref<Hazel::Material> Material, std::string name) : m_name(name)
+Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, Hazel::Ref<Hazel::Material> Material, const std::string& name)
+	: m_name(name), m_vertices(vertices), m_indices(indices), m_Material(Material)
 {
+	/*
     this->m_vertices = vertices;
     this->m_indices = indices;
     this->m_Material = Material;
-
+	*/
     setupMesh();
 }
 
