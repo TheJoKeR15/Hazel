@@ -9,7 +9,7 @@ namespace Hazel {
 	public:
 		Camera(float FOV, float AspectRatio, float Near, float Far);
 
-		void SetProjection(float FOV, float AspectRatio, float Near,float Far);
+		void SetProjection(float FOV, float AspectRatio);
 
 		const glm::vec3& GetPosition() const { return m_Position; }
 		void SetPosition(const glm::vec3& position) { m_Position = position; RecalculateViewMatrix(); }
@@ -59,6 +59,9 @@ namespace Hazel {
 		float Pitch = 0.f;
 		float Yaw = 0.f;
 		float Roll = 0.f;
+
+		float FarClip = 0.f;
+		float NearClip = 0.f;
 
 		float MouseSensitivity = 1.f;
 	};

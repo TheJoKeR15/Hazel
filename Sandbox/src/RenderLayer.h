@@ -54,6 +54,8 @@
 
 		Hazel::Ref<Hazel::Shader> MainShader;
 
+		Hazel::Ref<Hazel::Shader> SkyShader;
+
 		Hazel::Light* m_Light;
 
 		std::vector<Hazel::Ref<Hazel::Material>> ListOfMaterials;

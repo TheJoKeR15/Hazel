@@ -7,7 +7,7 @@
 namespace Hazel {
 
 	CameraController::CameraController(float aspectRatio, glm::vec3 Position)
-		: m_AspectRatio(aspectRatio), m_Camera(45.f,aspectRatio,0.1f,1000.f) ,m_CameraPosition(Position)
+		: m_AspectRatio(aspectRatio), m_Camera(45.f,aspectRatio,0.1f, 50000.0f) ,m_CameraPosition(Position)
 	{
 		m_Camera.SetPosition(m_CameraPosition);
 	}
@@ -18,7 +18,7 @@ namespace Hazel {
 		
 		//m_Camera.SetPosition(glm::vec3(0.f));
 
-		m_Camera.SetProjection(m_FOV,m_AspectRatio, 0.1f,10000.f);
+		m_Camera.SetProjection(m_FOV,m_AspectRatio);
 
 		// moce Left and Right
 		if (Input::IsKeyPressed(HZ_KEY_A))
@@ -131,7 +131,7 @@ namespace Hazel {
 
 		//m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
 		//m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
-		m_Camera.SetProjection(m_ZoomLevel, ViewPortWidth /ViewPortHeight, 0.1f, 1000.f);
+		m_Camera.SetProjection(m_ZoomLevel, ViewPortWidth /ViewPortHeight);
 		return false;
 	}
 

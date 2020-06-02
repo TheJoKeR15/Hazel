@@ -14,6 +14,16 @@ namespace Hazel {
 	{
 		InitializeScene();
 	};
+
+	Scene::~Scene()
+	{
+		for (int i = 0; i < Entities.size(); i++)
+		{
+			// Delete every entity 
+			delete Entities[i];
+			
+		}
+	}
 	void Scene::InitializeScene()
 	{
 		HZ_CORE_INFO("Scene Initialized");
@@ -69,6 +79,7 @@ namespace Hazel {
 	void Scene::AddEnitity(Entity* newEntinity)
 	{
 		newEntinity->UniqueID = EntityIndex++;
+		
 		Entities.push_back(newEntinity);
 	}
 

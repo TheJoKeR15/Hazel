@@ -24,7 +24,7 @@ namespace Hazel {
 		void SetNewViewPortSize(float Width, float Height)
 		{
 			ViewPortWidth = Width; ViewPortHeight = Height; 
-			m_Camera.SetProjection(m_FOV, ViewPortWidth / ViewPortHeight, 0.1f, 1000.f);
+			m_Camera.SetProjection(m_FOV, ViewPortWidth / ViewPortHeight);
 		};
 
 	private:

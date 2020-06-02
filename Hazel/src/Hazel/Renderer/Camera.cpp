@@ -8,7 +8,7 @@ namespace Hazel {
 
 	// TODO: Init camera projection on construct
 	Camera::Camera(float FOV, float AspectRatio, float Near, float Far)
-		: m_ViewMatrix(1.0f), m_ProjectionMatrix(glm::perspective(glm::radians(FOV), AspectRatio, Near, Far))
+		: m_ViewMatrix(1.0f), m_ProjectionMatrix(glm::perspective(glm::radians(FOV), AspectRatio, Near, Far)) , NearClip(Near) , FarClip(Far)
 	{
 		HZ_PROFILE_FUNCTION();
 
@@ -16,12 +16,12 @@ namespace Hazel {
 	}
 
 
-	void Camera::SetProjection(float FOV, float AspectRatio, float Near, float Far)
+	void Camera::SetProjection(float FOV, float AspectRatio)
 	{
 		HZ_PROFILE_FUNCTION();
 
 		//m_ProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
-		m_ProjectionMatrix = glm::perspective(glm::radians(FOV),AspectRatio, Near, Far);
+		m_ProjectionMatrix = glm::perspective(glm::radians(FOV),AspectRatio, NearClip, FarClip);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
 

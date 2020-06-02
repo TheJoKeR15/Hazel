@@ -38,4 +38,35 @@ namespace Hazel {
 		GLenum m_InternalFormat, m_DataFormat;
 	};
 
+	class OpenGLTextureCube : public TextureCube
+	{
+	public:
+		//OpenGLTextureCube(const std::string& path);
+		OpenGLTextureCube(std::vector<std::string>& faces);
+		virtual ~OpenGLTextureCube();
+
+		virtual void SetData(void* data, uint32_t size) override;
+
+		virtual void Bind(uint32_t slot = 0)  override;
+
+		virtual void ReBind() const override;
+
+		virtual uint32_t* GetSlot() override { return &m_slot; };
+
+		virtual uint32_t* GetID() override { return &m_RendererID; };
+
+		virtual uint32_t GetWidth() const override { return m_Width; }
+		virtual uint32_t GetHeight() const override { return m_Height; }
+
+		virtual bool operator==(const Texture& other) const override
+		{
+			return m_RendererID == ((OpenGLTextureCube&)other).m_RendererID;
+		}
+	private:
+		//std::string m_Path;
+		uint32_t m_Width, m_Height;
+		uint32_t m_RendererID;
+		uint32_t m_slot = 0;
+		GLenum m_InternalFormat, m_DataFormat;
+	};
 }

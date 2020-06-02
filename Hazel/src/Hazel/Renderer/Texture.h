@@ -35,4 +35,17 @@ namespace Hazel {
 		std::string m_path ;
 	};
 
+	class TextureCube : public Texture
+	{
+	public:
+		//static Ref<TextureCube> Create(uint32_t width, uint32_t height);
+		static Ref<TextureCube> Create(std::vector<std::string>& faces);
+		// function to get the id of the texture in memory
+		virtual uint32_t* GetSlot() = 0;
+		virtual uint32_t* GetID() = 0;
+
+		std::string m_path;
+	};
+
+
 }

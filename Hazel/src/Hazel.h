@@ -42,5 +42,7 @@
 #include "Hazel/Renderer/Model.h"
 
 #include "Hazel/Renderer/Lights/Light.h"
+
+#include "Hazel/Renderer/Entities/Skybox.h"
 //#include "Hazel/Renderer/Lights/DirectionalLight.h"
 // -----------------------------------

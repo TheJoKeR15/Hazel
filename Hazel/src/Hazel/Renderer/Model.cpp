@@ -69,7 +69,6 @@ namespace Hazel {
             0);
         */
         auto flags = (aiProcess_Triangulate | aiProcess_FlipUVs
-            | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph
             | aiProcess_SortByPType | aiProcess_RemoveRedundantMaterials
             | aiProcess_JoinIdenticalVertices);
         

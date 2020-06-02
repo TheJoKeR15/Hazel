@@ -19,6 +19,8 @@ namespace Hazel
 		Scene(float Width, float Height, Hazel::Ref<Hazel::Shader> shader);
 		
 		Scene(float Width, float Height);
+
+		~Scene();
 		void InitializeScene();
 
 		void BeginScene();

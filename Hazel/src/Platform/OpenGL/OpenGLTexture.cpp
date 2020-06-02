@@ -3,6 +3,7 @@
 //#include "Hazel/Renderer/Renderer.h"
 
 #include <stb_image.h>
+#include <vector>
 
 namespace Hazel {
 
@@ -62,7 +63,7 @@ namespace Hazel {
 		glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -98,5 +99,55 @@ namespace Hazel {
 	void OpenGLTexture2D::ReBind() const
 	{
 		glBindTextureUnit(m_slot, m_RendererID);
+	}
+
+	// Cube maps
+	OpenGLTextureCube::OpenGLTextureCube(std::vector<std::string>& faces)
+	{
+
+		HZ_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
+
+		glGenTextures(1, &m_RendererID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
+		int width, height, channels;
+		for (unsigned int i = 0; i < faces.size(); i++)
+		{
+			unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &channels, 0);
+			if (data)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+					0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+				);
+				stbi_image_free(data);
+			}
+			else
+			{
+				std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+				stbi_image_free(data);
+			}
+		}
+		m_Width = width;
+		m_Height = height;
+		
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	}
+	OpenGLTextureCube::~OpenGLTextureCube()
+	{
+		glDeleteTextures(1, &m_RendererID);
+	}
+	void OpenGLTextureCube::SetData(void* data, uint32_t size)
+	{
+	}
+	void OpenGLTextureCube::Bind(uint32_t slot)
+	{
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
+	}
+	void OpenGLTextureCube::ReBind() const
+	{
 	}
 }

@@ -7,7 +7,7 @@ namespace Hazel
 	Light::Light(Hazel::Ref<Hazel::Shader> shader) : Entity(0)
 	{
 		m_shader = shader;
-		LightViz = std::make_shared<Hazel::Model>("assets/models/Cube.obj", "Light", std::make_shared<Hazel::Material>(m_shader, "MainLightMaterial"), m_shader);
+		LightViz = std::make_shared<Hazel::Model>("assets/models/Cube.obj", displayName, std::make_shared<Hazel::Material>(m_shader, "MainLightMaterial"), m_shader);
 	}
 	void Light::OnInit()
 	{

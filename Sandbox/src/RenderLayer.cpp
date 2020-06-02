@@ -14,6 +14,8 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         // Init
         // setting more pleasent settings for the camera
         MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
+        SkyShader = m_ShaderLibrary.Load("assets/shaders/SkyboxShader.glsl");
+        // Viewport Frame buffer
         Buffer = 0;
         FrameBuffer = Hazel::FrameBuffer::Create(Buffer,1280,720);
 
@@ -24,6 +26,15 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
     {
 
         
+        std::vector<std::string> faces = {
+            "assets/HDRi/Skybox/right.jpg",
+                "assets/HDRi/Skybox/left.jpg",
+                "assets/HDRi/Skybox/top.jpg",
+                "assets/HDRi/Skybox/bottom.jpg",
+                "assets/HDRi/Skybox/front.jpg",
+                "assets/HDRi/Skybox/back.jpg"
+        };
+        auto SkyBox_Texture = Hazel::TextureCube::Create(faces);
 
         
 
@@ -41,6 +52,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         //GetScene()->AddEnitity(new Hazel::Model("assets/Sponza/sponza.obj", "Sponza", ListOfMaterials[1],MainShader));
         //GetScene()->GetEntities()[0]->scale = glm::vec3(0.1f);
+        //GetScene()->GetEntities().
         GetScene()->AddEnitity(new Hazel::Model("assets/nanosuit/nanosuit.obj", "NanoSuite", ListOfMaterials[1], MainShader));
 
         GetScene()->GetEntities()[0]->position = glm::vec3(8.f,0.f,3.f);
@@ -76,6 +88,9 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         m_Scene.GetCameraController()->m_FOV = 70;
         m_Scene.GetCameraController()->m_CameraTranslationSpeed = 50.f;
 
+        auto SkyBox = new Hazel::Skybox(SkyShader, SkyBox_Texture);
+        SkyBox->displayName = "SkyBox";
+        GetScene()->AddEnitity(SkyBox);
         GetScene()->InitializeScene();
     }
 
@@ -91,11 +106,11 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         FrameBuffer->Bind();
 
         FrameBuffertexture = FrameBuffer->AttachColorTexture2D(ViewPortSize.x, ViewPortSize.y ,ViewPortPosition.x,ViewPortPosition.y);
-        // This Doesnt Work For the moment 
         FrameBufferDepthTexture = FrameBuffer->AttachDepthTexture2D(ViewPortSize.x, ViewPortSize.y);
 
         MainShader->Bind();
-        
+
+        SkyShader->SetMat4("u_ViewProjection", GetScene()->GetCameraController()->GetCamera().GetViewProjectionMatrix());
         
         
         MainShader->SetFloat("AmbientLight", GetScene()->GetAmbientLighting());
@@ -531,6 +546,8 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
             ImGui::SliderFloat("FOV", &GetScene()->GetCameraController()->m_FOV, 0.f, 120.f, "FOV = %.3f");
             ImGui::SliderFloat("Sensitivity", &GetScene()->GetCameraController()->GetCamera().MouseSensitivity, 0.f, 8.f, "Sensitivity = %.3f");
             ImGui::SliderFloat("Speed", &GetScene()->GetCameraController()->m_CameraTranslationSpeed, 0.f, 8.f, "Speed = %.3f");
+            ImGui::SliderFloat("##Far", &GetScene()->GetCameraController()->GetCamera().FarClip, 0.f, 120000.f, "Far = %.3f");
+            ImGui::SliderFloat("##Near", &GetScene()->GetCameraController()->GetCamera().NearClip, 0.f, 120.f, "Near = %.3f");
             ImGui::TreePop();
         }
         ImGui::End();
