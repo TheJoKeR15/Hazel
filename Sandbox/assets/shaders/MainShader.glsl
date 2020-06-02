@@ -56,7 +56,7 @@ uniform float AmbientLight;
 
 uniform vec3 BasecolorTint;
 
-uniform bool bMaseked = true;
+uniform bool bMasked = true;
 
 uniform bool bHasAlbedoTexture = false;
 uniform bool bHasSpeclarTexture = false;
@@ -83,6 +83,7 @@ vec3 CalcDirLight(DirrectionalLight light, vec3 normal, vec3 viewDirection)
     vec3 Diffuse = vec3(0.f);
     if (bHasAlbedoTexture)
     {
+        
         Diffuse = texture(t_BaseColor, v_TexCoord).rgb;
     }
     else
@@ -183,7 +184,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDirectio
   
 void main()
 {
-    if (texture(t_BaseColor, v_TexCoord).a < AlphaClip)
+    if (bMasked &&texture(t_BaseColor, v_TexCoord).a < AlphaClip)
     {
         discard;
     }

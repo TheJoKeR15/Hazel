@@ -59,10 +59,10 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         
 
         GetScene()->AddEnitity(new Hazel::PointLight(MainShader, 0));
+        GetScene()->GetEntities()[2]->SetPosition(glm::vec3(0.f, 15.f, 3.f));
+        //GetScene()->AddEnitity(new Hazel::PointLight(MainShader, 1));
 
-        GetScene()->AddEnitity(new Hazel::PointLight(MainShader, 1));
-
-        //GetScene()->AddEnitity(new Hazel::DirectionalLight(MainShader));
+        GetScene()->AddEnitity(new Hazel::DirectionalLight(MainShader));
 
         //GetScene()->AddEnitity(new Hazel::SpotLight(MainShader, 0));
         //m_Light = dynamic_cast<Hazel::Light*>(GetScene()->GetEntities()[6]);

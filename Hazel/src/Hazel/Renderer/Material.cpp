@@ -48,7 +48,8 @@ void Hazel::Material::Initialization()
 		m_Specular->Bind(m_Shader->GetNextTextureSlotIndex());
 		m_Shader->SetInt("t_Specular", *m_Specular->GetSlot());
 	}
-
+	
+	m_Shader->SetBool("bMasked", bMaseked);
 	m_Shader->SetFloat("SpecularStrenght", SpecularIntensity);
 	m_Shader->SetFloat("SpecularExponent", SpecularExponent);
 	m_Shader->SetFloat3("BasecolorTint", TintBaseColor);
@@ -71,6 +72,7 @@ void Hazel::Material::Update()
 		m_Shader->SetInt("t_Specular", *m_Specular->GetSlot());
 	}
 	m_Shader->Bind();
+	m_Shader->SetBool("bMasked", bMaseked);
 	m_Shader->SetFloat("SpecularStrenght", SpecularIntensity);
 	m_Shader->SetFloat("SpecularExponent", SpecularExponent);
 	m_Shader->SetFloat3("BasecolorTint", TintBaseColor);

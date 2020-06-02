@@ -59,10 +59,22 @@ namespace Hazel {
     void Model::loadModel(const std::string& path)
     {
         auto start = std::chrono::system_clock::now();
-
-
+        /*
+        auto flags = (aiProcess_CalcTangentSpace | \
+            aiProcess_GenNormals | \
+            aiProcess_JoinIdenticalVertices | \
+            aiProcess_Triangulate | \
+            aiProcess_GenUVCoords | \
+            aiProcess_SortByPType | \
+            0);
+        */
+        auto flags = (aiProcess_Triangulate | aiProcess_FlipUVs
+            | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph
+            | aiProcess_SortByPType | aiProcess_RemoveRedundantMaterials
+            | aiProcess_JoinIdenticalVertices);
+        
         Assimp::Importer import;
-        const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+        const aiScene* scene = import.ReadFile(path, flags);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
@@ -174,7 +186,8 @@ namespace Hazel {
         {
             
              Hazel::Ref<Hazel::Material> Mat = std::make_shared<Hazel::Material>(m_Shader, material->GetName().C_Str());
-             
+             if (material->GetTextureCount(aiTextureType_OPACITY) > 0)
+                 Mat->bMaseked = true;
              Mat->m_Albedo = loadMaterialTexture(material, aiTextureType_DIFFUSE, "Diffuse");
              if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
                 Mat->m_Specular = loadMaterialTexture(material, aiTextureType_SPECULAR, "Specular");
