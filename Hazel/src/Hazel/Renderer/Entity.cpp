@@ -29,6 +29,17 @@ namespace Hazel {
 
 	}
 
+	void Entity::DrawShawdowPass(Ref<Shader> ShadowPassShader)
+	{
+
+	}
+
+	void Entity::DrawMainPass(Ref<Shader> MainPassShader)
+	{
+	}
+
+
+
 	void Entity::OnEndFrame()
 	{
 	}

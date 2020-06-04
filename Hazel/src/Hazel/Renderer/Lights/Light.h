@@ -20,6 +20,12 @@ namespace Hazel
 
 		virtual void OnEndFrame() override;
 
+		virtual void DrawShawdowPass(Ref<Shader> ShadowPassShader) override;
+
+		virtual void DrawMainPass(Ref<Shader> MainPassShader) override;
+		
+		virtual void DrawMainPass() override;
+
 		bool bActive = true;
 
 		float Intensity = 1.f;

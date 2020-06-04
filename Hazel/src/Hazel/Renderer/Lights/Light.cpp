@@ -6,6 +6,7 @@ namespace Hazel
 {
 	Light::Light(Hazel::Ref<Hazel::Shader> shader) : Entity(0)
 	{
+		bRecieveShadow = false;
 		m_shader = shader;
 		LightViz = std::make_shared<Hazel::Model>("assets/models/Cube.obj", displayName, std::make_shared<Hazel::Material>(m_shader, "MainLightMaterial"), m_shader);
 	}
@@ -26,7 +27,7 @@ namespace Hazel
 
 		if (bVisible)
 		{
-			DrawMesh();
+			//DrawMesh();
 		}
 		
 		Entity::OnUpdate(dt);
@@ -34,6 +35,22 @@ namespace Hazel
 
 	void Light::OnEndFrame()
 	{
+	}
+
+	void Light::DrawShawdowPass(Ref<Shader> ShadowPassShader)
+	{
+	}
+
+	void Light::DrawMainPass(Ref<Shader> MainPassShader)
+	{
+	}
+
+	void Light::DrawMainPass()
+	{
+		if (bVisible)
+		{
+			DrawMesh();
+		}
 	}
 
 

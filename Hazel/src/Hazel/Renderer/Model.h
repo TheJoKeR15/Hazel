@@ -19,9 +19,20 @@ namespace Hazel {
     {
     public:
 
-        Model(const std::string& path, const std::string& Inname, Hazel::Ref<Hazel::Material> Material,Hazel::Ref<Hazel::Shader> shader)
-            : m_path(path), m_Material(Material), m_Shader(shader),Entity(Inname)
+        Model(const std::string& path, const std::string& Inname, Hazel::Ref<Hazel::Material> Material,Hazel::Ref<Hazel::Shader> shader
+            , Hazel::Ref<Hazel::Shader> shadowshader)
+            : m_path(path), m_Material(Material),Entity(Inname)
         {
+            m_ShadowShader = shadowshader;
+            m_Shader = shader;
+            loadModel(path);
+            //transform = glm::mat4(1.f);
+            //Shader = m_Material->GetShader();
+        }
+        Model(const std::string& path, const std::string& Inname, Hazel::Ref<Hazel::Material> Material, Hazel::Ref<Hazel::Shader> shader)
+            : m_path(path), m_Material(Material), Entity(Inname)
+        {
+            m_Shader = shader;
             loadModel(path);
             //transform = glm::mat4(1.f);
             //Shader = m_Material->GetShader();
@@ -35,11 +46,16 @@ namespace Hazel {
 
         virtual void OnEndFrame() override;
 
-        void Draw();
+        virtual void DrawShawdowPass(Ref<Shader> ShadowPassShader) override;
 
-        void Draw(Hazel::Ref<Hazel::Shader> shader);
+        virtual void DrawMainPass(Ref<Shader> MainPassShader) override;
+        virtual void DrawMainPass() override;
 
-        void Draw(Hazel::Ref<Hazel::Shader> shader,glm::mat4 Transform);
+        //void Draw();
+
+        //void Draw(Ref<Shader> shader);
+
+        void Draw(Ref<Shader> shader,glm::mat4 Transform);
 
         const std::string& GetPath() { return m_path; };
 
@@ -52,7 +68,7 @@ namespace Hazel {
         // @TODO : REPLACE this with an ECS or component system later
         // Because here an entity can only have one material
         // The material of the entity 
-        Hazel::Ref<Hazel::Shader> m_Shader;
+
 
         std::vector<Mesh> &Getmeshes() { return meshes; };
 

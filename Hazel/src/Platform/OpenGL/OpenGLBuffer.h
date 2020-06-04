@@ -47,7 +47,7 @@ namespace Hazel {
 	class OpenGLFrameBuffer : public FrameBuffer
 	{
 	public:
-		OpenGLFrameBuffer(uint32_t& Index, int Width, int height);
+		OpenGLFrameBuffer(uint32_t& Index, int Width, int height, bool bDepthOnly = false);
 		virtual ~OpenGLFrameBuffer();
 
 		virtual void Bind() const;
@@ -57,13 +57,15 @@ namespace Hazel {
 
 		virtual uint32_t AttachColorTexture2D(int Width, int height, int X, int Y) ;
 		virtual uint32_t AttachDepthTexture2D(int Width, int height) ;
-
+		virtual uint32_t AttachRenderBuffer(int Width, int height);
+		static uint32_t m_Index ;
 		virtual void FreeBuffer() const;
 	private:
-		uint32_t m_Index ;
+		
 		uint32_t Buffer ;
 
 		uint32_t TextureBuffer ;
+		uint32_t DepthMap ;
 		uint32_t RenderBuffer ;
 	};
 }

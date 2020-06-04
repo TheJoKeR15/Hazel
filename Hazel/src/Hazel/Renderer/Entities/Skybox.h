@@ -21,6 +21,12 @@ namespace Hazel
 
 		virtual void OnEndFrame() override;
 
+		virtual void DrawShawdowPass(Ref<Shader> ShadowPassShader) override;
+
+		virtual void DrawMainPass(Ref<Shader> MainPassShader) override {};
+		
+		virtual void DrawMainPass() override;
+
 		Ref<Shader> m_shader;
 
 		Ref<Model> Mesh;

@@ -26,6 +26,8 @@ namespace Hazel {
 
 		virtual uint32_t* GetID() override { return &m_RendererID; };
 
+		virtual void SetID(uint32_t ID) override { m_RendererID = ID; };
+
 		virtual bool operator==(const Texture& other) const override
 		{
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;

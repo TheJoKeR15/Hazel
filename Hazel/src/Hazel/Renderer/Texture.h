@@ -31,7 +31,7 @@ namespace Hazel {
 		// function to get the id of the texture in memory
 		virtual uint32_t* GetSlot() = 0;
 		virtual uint32_t* GetID() = 0;
-
+		virtual void SetID(uint32_t ID) = 0;
 		std::string m_path ;
 	};
 
@@ -43,7 +43,7 @@ namespace Hazel {
 		// function to get the id of the texture in memory
 		virtual uint32_t* GetSlot() = 0;
 		virtual uint32_t* GetID() = 0;
-
+		
 		std::string m_path;
 	};
 

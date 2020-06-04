@@ -30,10 +30,26 @@ namespace Hazel {
 		{
 			s_RendererAPI->Clear();
 		}
+		static void ClearDepth()
+		{
+			s_RendererAPI->ClearDepth();
+		}
 
 		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count = 0)
 		{
 			s_RendererAPI->DrawIndexed(vertexArray, count);
+		}
+
+		static void SetFaceCulling(bool Front)
+		{
+			if (Front)
+			{
+				s_RendererAPI->FrontCulling();
+			}
+			else
+			{
+				s_RendererAPI->BackCulling();
+			}
 		}
 	private:
 		static Scope<RendererAPI> s_RendererAPI;

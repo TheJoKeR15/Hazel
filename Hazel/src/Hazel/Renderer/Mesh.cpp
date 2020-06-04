@@ -18,7 +18,7 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, Hazel:
 void Mesh::Draw(Hazel::Ref<Hazel::Shader> shader, glm::mat4 Transform)
 {
     
-	m_Material->Update();
+	//m_Material->Update();
 
 	Hazel::Renderer::Submit(Hazel::Ref<Hazel::Shader>(shader), m_VA, Transform);
 }

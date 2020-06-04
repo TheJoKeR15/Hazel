@@ -131,7 +131,7 @@ ExampleLayer::ExampleLayer()
 
 	auto Mat = std::make_shared<Hazel::Material>(MainShader);
 	
-	m_Model = new Hazel::Model("assets/models/Cube.obj","Model",Mat, MainShader);
+	//m_Model = new Hazel::Model("assets/models/Cube.obj","Model",Mat, MainShader);
 
 	MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
 	
@@ -189,7 +189,7 @@ void ExampleLayer::OnUpdate(Hazel::Timestep ts)
 	}
 	if (m_Model && m_Model->bVisible)
 	{
-		m_Model->Draw(MainShader);
+		//m_Model->Draw(MainShader);
 	}
 
 

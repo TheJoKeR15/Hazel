@@ -7,6 +7,7 @@ namespace Hazel
 	{
 		m_shader = shader;
 		Mesh = std::make_shared<Model>("assets/HDRi/Skymesh.obj", "SkyBox", std::make_shared<Material>(m_shader, "SkyBoxMaterial"), m_shader);
+		bRecieveShadow = false;
 	}
 	//"assets/HDRi/Skymesh.obj"
 	void Skybox::OnInit()
@@ -26,7 +27,7 @@ namespace Hazel
 
 		if (bVisible)
 		{
-			DrawMesh();
+			//DrawMesh();
 		}
 
 		Entity::OnUpdate(dt);
@@ -34,5 +35,17 @@ namespace Hazel
 
 	void Skybox::OnEndFrame()
 	{
+	}
+
+	void Skybox::DrawShawdowPass(Ref<Shader> ShadowPassShader)
+	{
+	}
+
+	void Skybox::DrawMainPass()
+	{
+		if (bVisible)
+		{
+			DrawMesh();
+		}
 	}
 }

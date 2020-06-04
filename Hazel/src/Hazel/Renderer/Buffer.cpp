@@ -70,12 +70,12 @@ namespace Hazel {
 
 
 
-	Ref<FrameBuffer> FrameBuffer::Create(uint32_t& Index, int Width, int height)
+	Ref<FrameBuffer> FrameBuffer::Create(uint32_t& Index, int Width, int height, bool bDepthOnly)
 	{
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLFrameBuffer>(Index,Width,height);
+		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLFrameBuffer>(Index,Width,height, bDepthOnly);
 		}
 
 		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");

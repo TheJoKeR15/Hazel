@@ -16,9 +16,7 @@ namespace Hazel {
 
 	void Model::OnInit()
 	{
-
         m_Material->Initialization();
-        //std::cout << "INITIALIZING MODEL" << std::endl;
 	}
 
 	void Model::OnBeginFrame()
@@ -29,32 +27,60 @@ namespace Hazel {
 	void Model::OnUpdate(float dt)
 	{
         RecalculateTransforms();
-        if (bVisible)
-        {
-
-            Draw();
-        }
 	}
 
 	void Model::OnEndFrame()
 	{
 	}
 
-	void Model::Draw()
+	void Model::DrawShawdowPass(Ref<Shader> ShadowPassShader)
 	{
-        
+        if (bVisible && bCastShadow)
+        {
+            RecalculateTransforms();
+            for (unsigned int i = 0; i < meshes.size(); i++)
+            {
 
-        Draw(m_Shader, transform);
+                //meshes[i].m_Material->Update();
+                meshes[i].Draw(ShadowPassShader, transform);
+            }
+        }
 	}
 
-	void Model::Draw(Hazel::Ref<Hazel::Shader> shader)
+    void Model::DrawMainPass()
     {
-        //shader->Setfloat("SpecularStrenght" , )
-        //RecalculateTransforms();
-        for (unsigned int i = 0; i < meshes.size(); i++)
-            meshes[i].Draw(shader,transform);
-
+        if (bVisible)
+        {
+            RecalculateTransforms();
+            for (unsigned int i = 0; i < meshes.size(); i++)
+            {
+                
+                meshes[i].m_Material->Update();
+                meshes[i].Draw(m_Shader, transform);
+            }
+        }
     }
+
+	void Model::DrawMainPass(Ref<Shader> MainPassShader)
+	{
+
+
+	}
+
+
+	//void Model::Draw()
+	//{
+ //       Draw(m_Shader, transform);
+	//}
+
+	//void Model::Draw(Hazel::Ref<Hazel::Shader> shader)
+ //   {
+ //       //shader->Setfloat("SpecularStrenght" , )
+ //       //RecalculateTransforms();
+ //       for (unsigned int i = 0; i < meshes.size(); i++)
+ //           meshes[i].Draw(shader,transform);
+
+ //   }
 
     void Model::loadModel(const std::string& path)
     {

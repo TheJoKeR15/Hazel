@@ -25,10 +25,9 @@ namespace Hazel {
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 
+
 	void Renderer::BeginScene(Camera& camera)
 	{
-
-		RenderCommand::Clear();
 		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 	}
 
@@ -40,7 +39,7 @@ namespace Hazel {
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
 	{
 		shader->Bind();
-		shader->SetMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
+		//shader->SetMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
 		shader->SetMat4("u_Transform", transform);
 
 		vertexArray->Bind();

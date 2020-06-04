@@ -8,6 +8,7 @@ in vec3 v_Color;
 in vec2 v_TexCoord;
 in vec3 v_Normal;
 in vec3 v_PositionWS;
+in vec4 FragPosLightSpace;
 
 // Structs
 
@@ -21,7 +22,7 @@ struct DirrectionalLight {
 
 struct PointLight {    
     vec3 position;
-    float intensity;
+    float intensity ;
 };  
 
 struct SpotLight {
@@ -37,6 +38,11 @@ struct SpotLight {
 //Utility
 uniform vec3 CameraPosition;
 
+// Shadows
+uniform sampler2D DirectionalShadowMap;
+uniform float ShadowBias;
+vec2 TEXELSIZE = 1.0 / textureSize(DirectionalShadowMap, 0);
+
 //Light Uniforms
 uniform DirrectionalLight DirLight;
 #define NR_POINT_LIGHTS 4  
@@ -47,6 +53,7 @@ uniform SpotLight spotLights[NR_SPOT_LIGHTS];
 // Material Uniforms
 uniform sampler2D t_BaseColor;
 uniform sampler2D t_Specular;
+
 
 uniform float SpecularStrenght;
 uniform float SpecularExponent;
@@ -69,6 +76,69 @@ uniform bool bHasSpeclarTexture = false;
 
  const float AlphaClip = 0.33;
 
+ const int PCFSamples = 4;
+ 
+
+
+ float SampleShadow(sampler2D ShadowMap,vec2 Coords, float Compare)
+ {
+     return step( texture(ShadowMap,Coords).r,Compare);
+ }
+
+ float SampleShadowLinear(sampler2D ShadowMap,vec2 Coords,float Compare)
+ {
+     vec2 pixelpos = Coords/TEXELSIZE + vec2(0.5);
+     vec2 fracPart = fract(pixelpos);
+     vec2 StartTexel = (pixelpos - fracPart)*TEXELSIZE ;
+
+     float texe1 = SampleShadow(ShadowMap,StartTexel,Compare);
+     float texe2 = SampleShadow(ShadowMap,StartTexel + vec2(TEXELSIZE.x,0.0),Compare);
+     float texe3 = SampleShadow(ShadowMap,StartTexel + vec2(0.0,TEXELSIZE.y),Compare);
+     float texe4 = SampleShadow(ShadowMap,StartTexel + TEXELSIZE,Compare);
+
+     float mix1 = mix(texe1,texe3,fracPart.y);
+     float mix2 = mix(texe2,texe4,fracPart.y);
+
+     return mix(mix1 , mix2,fracPart.x);
+ }
+
+  float SampleShadowPCF(sampler2D ShadowMap,vec2 Coords,float Compare)
+ {
+    const int SAMPLE_START = (PCFSamples - 1)/2;
+    const float NUM_SAMPLE_SQUARED = PCFSamples * PCFSamples;
+
+    float result = 0.f;
+    for(int x = -SAMPLE_START; x <= SAMPLE_START; ++x)
+    {
+        for(int y = -SAMPLE_START; y <= SAMPLE_START; ++y)
+        {
+        vec2 coordOffset = vec2(x,y)*TEXELSIZE;
+        result += SampleShadowLinear(ShadowMap, Coords + coordOffset , Compare);
+        }    
+    }
+    return result/NUM_SAMPLE_SQUARED;
+ }
+
+ float ShadowCalculation(vec4 fragPosLightSpace,float Bias)
+{
+    float shadow = 0.0;
+        // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    if(projCoords.z > 1.0)
+    {
+        return shadow;
+    }
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+        // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    
+    // check whether current frag pos is in shadow
+     
+    //shadow = currentDepth - Bias > closestDepth  ? 1.0 : 0.0;  
+
+    return SampleShadowPCF(DirectionalShadowMap, projCoords.xy,currentDepth - Bias);
+}
 
 vec3 CalcDirLight(DirrectionalLight light, vec3 normal, vec3 viewDirection)
 {
@@ -101,8 +171,12 @@ vec3 CalcDirLight(DirrectionalLight light, vec3 normal, vec3 viewDirection)
     {
         Specular = SpecularStrenght;
     }
+    
+    float bias = max(ShadowBias * (1.0 - dot(normal, lightDir)), 0); 
+    float shadow =  ShadowCalculation(FragPosLightSpace,bias);
 
-    return ((diff * Diffuse + spec * Specular ) * light.intensity )+ Ambient ;
+    return ((diff * Diffuse + spec * Specular ) * light.intensity * (1.0 - shadow ))+ Ambient ;
+    
 } 
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDirection)
@@ -167,7 +241,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDirectio
     {
         Diffuse = BasecolorTint;
     }
-    vec3 Ambient = Diffuse * 0.05f;
+    vec3 Ambient = Diffuse * AmbientLight;
     
     float Specular = 0.f;
     if (bHasSpeclarTexture)
@@ -197,7 +271,7 @@ void main()
     vec3 Result = vec3(0.f);
 
     // phase 1: Directional lighting
-    Result = CalcDirLight(DirLight, Normal, ViewDirection);
+    //Result = CalcDirLight(DirLight, Normal, ViewDirection);
     // phase 2: Point lights
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
@@ -209,8 +283,9 @@ void main()
         Result += CalcSpotLight(spotLights[i], Normal, v_PositionWS, ViewDirection);    
     }
 
-
+    //FinalColor = vec4(vec3(shdow),1.0f);
     FinalColor = vec4(Result, 1.0);
+    //FinalColor = FragPosLightSpace;
 
     /*
     // SPECULAR // 
@@ -259,16 +334,20 @@ layout(location = 2) in vec2 a_TexCoord;
 
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
+uniform mat4 lightSpaceMatrix;
   
 out vec3 v_Color;                           // output a color to the fragment shader
 out vec2 v_TexCoord;
 out vec3 v_Normal;
 out vec3 v_PositionWS;
+out vec4 FragPosLightSpace;
 
 void main()
 {
-    gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
+    
     v_Normal = mat3(transpose(inverse(u_Transform))) * a_Normal;                      // set ourColor to the input color we got from the vertex data
     v_TexCoord = a_TexCoord;
     v_PositionWS = vec3(u_Transform * vec4(a_Position, 1.0));
+    FragPosLightSpace = lightSpaceMatrix * vec4(v_PositionWS, 1.0);
+    gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
 }    

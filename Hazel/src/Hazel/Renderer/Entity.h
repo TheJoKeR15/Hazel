@@ -5,6 +5,9 @@
 #include "glm/gtc/quaternion.hpp"
 #include <string>
 
+#include "Shader.h"
+#include "Hazel/Core/Core.h"
+
 class Material;
 
 
@@ -28,6 +31,11 @@ namespace Hazel {
 
 		virtual void OnUpdate(float dt);
 
+		virtual void DrawShawdowPass(Ref<Shader> ShadowPassShader) = 0;
+
+		virtual void DrawMainPass(Ref<Shader> MainPassShader) = 0;
+		virtual void DrawMainPass() = 0;
+
 		virtual void OnEndFrame();
 
 
@@ -39,6 +47,12 @@ namespace Hazel {
 
 		// should this entity be Rendered (every frame)
 		bool bIsSelected = false;
+
+		// should this entity be Rendered in the shadow pass (every frame)
+		bool bCastShadow = true;
+
+		// should this entity be Rendered in the shadow pass (every frame)
+		bool bRecieveShadow = true;
 
 		uint32_t UniqueID = 0;
 
@@ -121,6 +135,9 @@ namespace Hazel {
 			* glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0, 0, 1))
 			* glm::scale (glm::mat4(1.0f), scale);
 
+		Hazel::Ref<Hazel::Shader> m_Shader;
+
+		Hazel::Ref<Hazel::Shader> m_ShadowShader;
 	};
 
 	

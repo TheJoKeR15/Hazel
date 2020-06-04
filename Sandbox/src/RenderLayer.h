@@ -6,6 +6,9 @@
 #include "Hazel/Core/Layer.h"
 #include "imgui/imgui.h"
 #include "GizmoOverlay.h"
+
+
+
 	class RenderLayer : public Hazel::Layer
 	{
 	public:
@@ -56,6 +59,8 @@
 
 		Hazel::Ref<Hazel::Shader> SkyShader;
 
+		Hazel::Ref<Hazel::Shader> DirectionalShadowMapShader;
+
 		Hazel::Light* m_Light;
 
 		std::vector<Hazel::Ref<Hazel::Material>> ListOfMaterials;
@@ -75,10 +80,16 @@
 		uint32_t FrameBufferDepthTexture;
 		Hazel::Ref<Hazel::FrameBuffer> FrameBuffer;
 
+		uint32_t DirectionalShadowMap;
+
+		Hazel::Ref<Hazel::FrameBuffer> DepthFrameBuffer;
+
+		unsigned int ShadowMapScale = 1;
+
 		ImVec2 ViewPortSize;
 		ImVec2 ViewPortPosition;
 
-
+		int lastres = 1;
 
 
 

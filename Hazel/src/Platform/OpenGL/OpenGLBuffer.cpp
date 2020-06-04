@@ -124,24 +124,37 @@ namespace Hazel {
 	// IndexBuffer //////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 
-	OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t &Index ,int Width, int height) : m_Index(Index)
+	OpenGLFrameBuffer::OpenGLFrameBuffer(uint32_t &Index ,int Width, int height, bool bDepthOnly) : Buffer(Index)
 	{
 		HZ_PROFILE_FUNCTION();
 
 		glGenFramebuffers(1, &Buffer);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, Buffer);
+		if (bDepthOnly)
+		{
+			// create the Depth attachement
+			glGenTextures(1, &DepthMap);
+		}
+		else
+		{
+			glGenTextures(1, &TextureBuffer);
 
+			// Creating a texture for a framebuffer
+
+			glGenRenderbuffers(1, &RenderBuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, RenderBuffer);
+
+		}
 		// create the texture attachement
-		glGenTextures(1, &TextureBuffer);
+
+
 		//Bind the frame buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, Buffer);
-		// Creating a texture for a framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glGenRenderbuffers(1, &RenderBuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, RenderBuffer);
 
-				
+		//OpenGLFrameBuffer::m_Index++;
+		//Unbind();
 
 		
 	}
@@ -170,8 +183,7 @@ namespace Hazel {
 
 	uint32_t OpenGLFrameBuffer::AttachColorTexture2D(int Width,int height, int X, int Y)
 	{
-		// Resize the viewport to the size of the Buffer
-		glViewport(0, 0, Width, height);
+
 
 		glBindTexture(GL_TEXTURE_2D, TextureBuffer);
 		// Generate the texture
@@ -189,12 +201,37 @@ namespace Hazel {
 
 	uint32_t OpenGLFrameBuffer::AttachDepthTexture2D(int width, int height)
 	{
+		// Resize the viewport to the size of the Buffer
+		glViewport(0, 0, width, height);
+
+		glGenTextures(1, &DepthMap);
+		glBindTexture(GL_TEXTURE_2D, DepthMap);
+
+
+		
+		// Generate the texture
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		//Defining the parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		//attach it to the framebuffer:
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DepthMap, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+
+		return DepthMap;
+	}
+
+	uint32_t OpenGLFrameBuffer::AttachRenderBuffer(int width, int height)
+	{
 
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RenderBuffer); // now actually attach it
 		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+			//std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 		glBindTexture(GL_TEXTURE_2D, 0);
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return RenderBuffer;

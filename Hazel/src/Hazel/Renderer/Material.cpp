@@ -36,7 +36,7 @@ Hazel::Material::Material(Hazel::Ref<Shader> Shader, Hazel::Ref<Hazel::Texture2D
 
 void Hazel::Material::Initialization()
 {
-	m_Shader->Bind();
+	//m_Shader->Bind();
 	if (bHasAlbedoTexture)
 	{
 		m_Albedo->Bind(m_Shader->GetNextTextureSlotIndex());
@@ -53,7 +53,7 @@ void Hazel::Material::Initialization()
 	m_Shader->SetFloat("SpecularStrenght", SpecularIntensity);
 	m_Shader->SetFloat("SpecularExponent", SpecularExponent);
 	m_Shader->SetFloat3("BasecolorTint", TintBaseColor);
-	m_Shader->Bind();
+	//m_Shader->Bind();
 }
 
 void Hazel::Material::Update()
@@ -76,5 +76,5 @@ void Hazel::Material::Update()
 	m_Shader->SetFloat("SpecularStrenght", SpecularIntensity);
 	m_Shader->SetFloat("SpecularExponent", SpecularExponent);
 	m_Shader->SetFloat3("BasecolorTint", TintBaseColor);
-	m_Shader->Bind();
+	//m_Shader->Bind();
 }
