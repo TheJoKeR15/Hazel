@@ -26,7 +26,10 @@ namespace Hazel {
 
 	void Model::OnUpdate(float dt)
 	{
-        RecalculateTransforms();
+        if (!bIsSelected)
+        {
+            RecalculateTransforms();
+        } 
 	}
 
 	void Model::OnEndFrame()
@@ -37,7 +40,7 @@ namespace Hazel {
 	{
         if (bVisible && bCastShadow)
         {
-            RecalculateTransforms();
+            //RecalculateTransforms();
             for (unsigned int i = 0; i < meshes.size(); i++)
             {
 
@@ -51,7 +54,7 @@ namespace Hazel {
     {
         if (bVisible)
         {
-            RecalculateTransforms();
+            //RecalculateTransforms();
             for (unsigned int i = 0; i < meshes.size(); i++)
             {
                 
@@ -275,7 +278,14 @@ namespace Hazel {
             {   // if texture hasn't been loaded already, load it
 
                 std::string path = directory +'/'+ str.C_Str()  ;
-                texture = Texture2D::Create(path);
+                if (type == aiTextureType_BASE_COLOR || type == aiTextureType_DIFFUSE)
+                {
+                    texture = Texture2D::Create(path,true);
+                }
+                else
+                {
+                    texture = Texture2D::Create(path, false);
+                }
                 
                 textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
             }

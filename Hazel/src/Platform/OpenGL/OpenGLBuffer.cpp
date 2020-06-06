@@ -181,25 +181,21 @@ namespace Hazel {
 		return &TextureBuffer;
 	}
 
-	uint32_t OpenGLFrameBuffer::AttachColorTexture2D(int Width,int height, int X, int Y)
+	uint32_t OpenGLFrameBuffer::CreateColorTexture2D(int Width,int height, bool bLinear , bool HDR)
 	{
-
-
-		glBindTexture(GL_TEXTURE_2D, TextureBuffer);
+		uint32_t newTexture = 0;
+		glGenTextures(1, &newTexture);
+		glBindTexture(GL_TEXTURE_2D, newTexture);
 		// Generate the texture
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0,HDR ? GL_RGBA16F : GL_RGB, Width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 		//Defining the parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
 
-		//attach it to the framebuffer:
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TextureBuffer, 0);
-		
-
-		return TextureBuffer;
+		return newTexture;
 	}
 
-	uint32_t OpenGLFrameBuffer::AttachDepthTexture2D(int width, int height)
+	uint32_t OpenGLFrameBuffer::CreateAndAttachDepthTexture2D(int width, int height)
 	{
 		// Resize the viewport to the size of the Buffer
 		glViewport(0, 0, width, height);
@@ -224,7 +220,7 @@ namespace Hazel {
 		return DepthMap;
 	}
 
-	uint32_t OpenGLFrameBuffer::AttachRenderBuffer(int width, int height)
+	uint32_t OpenGLFrameBuffer::CreateAndAttachRenderBuffer(int width, int height)
 	{
 
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
@@ -235,6 +231,34 @@ namespace Hazel {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return RenderBuffer;
+	}
+
+	void OpenGLFrameBuffer::DrawBuffers(int n)
+	{
+		auto ColorAttachements = new GLenum [n];
+		for (int i = 0; i < n; i++)
+		{
+			ColorAttachements[i] = GL_COLOR_ATTACHMENT0 + i;
+		}
+		glDrawBuffers(n, ColorAttachements);
+	}
+
+	void OpenGLFrameBuffer::AttachColorTexture2D(uint32_t& Texture, int Width, int height, int index)
+	{
+		//attach it to the framebuffer:
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, Texture, 0);
+	}
+
+	void OpenGLFrameBuffer::AttachDepthTexture2D(uint32_t& Texture, int Width, int height)
+	{
+	}
+
+	void OpenGLFrameBuffer::AttachColorCubemap(uint32_t& Texture, int Width, int height)
+	{
+	}
+
+	void OpenGLFrameBuffer::AttachDepthCubemap(uint32_t& Texture, int Width, int height)
+	{
 	}
 
 	void OpenGLFrameBuffer::FreeBuffer() const

@@ -26,6 +26,8 @@ namespace Hazel
 
 		void InitializeBuffers(float ViewPortSizeX, float ViewPortSizeY);
 
+		void InitializeScreenQuad();
+
 		void BeginScene();
 
 		void RenderScene(float dt);
@@ -33,6 +35,10 @@ namespace Hazel
 		void RenderMainPass();
 
 		void RenderShadowPass();
+
+		void RenderPostPass();
+
+		void ComposeFinalImage();
 
 		void EndScene();
 
@@ -56,6 +62,10 @@ namespace Hazel
 
 		uint32_t GetShadowMapTextrure() { return DirectionalShadowMap; };
 
+		uint32_t GetPostProcessTextrure() { return ExposedTexture; };
+
+		uint32_t GetFinalImageTextrure() { return FinalImageTexture; };
+
 		const std::vector<Entity*>& GetEntities() { return Entities; };
 
 		//const std::vector<PointLight*>& GetPointLights() { return PointLights; };
@@ -64,10 +74,10 @@ namespace Hazel
 
 		float& GetAmbientLighting() { return m_AmbientLighting; };
 
-		int ShadowMapScale = 4;
-		float ShadowBias = 0.001;
+		int ShadowMapScale = 8;
+		float ShadowBias = 0.001f;
 
-		Hazel::Camera LightFrustum = Hazel::Camera(45, 1, 0.01, 1000.f);
+		Hazel::Camera LightFrustum = Hazel::Camera(45, 1, 0.01f, 1000.f);
 
 		glm::vec3 Light = glm::vec3(-2.f, 4.0f, -1);
 
@@ -77,35 +87,64 @@ namespace Hazel
 		
 	private:
 		
-		std::vector<Entity*> Entities;
+		Hazel::ShaderLibrary m_ShaderLibrary;
 
+		std::vector<Entity*> Entities;
 		//std::vector<PointLight*> PointLights;
 
 		uint32_t EntityIndex = 0;
-
 		uint32_t PointLightIndex = 0;
 
 		CameraController m_CameraController;
 
 		float m_Width, m_Height;
-
 		float m_AmbientLighting = 0.01f;
 
 		Ref<Shader> m_shader;
 		Ref<Shader> m_ShadowPassShader;
+		Ref<Shader> m_PostProcessShader;
+		Ref<Shader> m_CompositionShader;
 
 		glm::vec3 BackGroundColor = glm::vec3(0.1f);
 
 		uint32_t Buffer1;
 		uint32_t Buffer2;
+		uint32_t Buffer3;
 
 		uint32_t FrameBuffertexture;
+		Ref<Texture2D> FrameBuffertexture2D;
 		uint32_t FrameRenderBuffer;
-		Hazel::Ref<Hazel::FrameBuffer> FrameBuffer;
+		Ref<FrameBuffer> FrameBuffer;
+		
+		uint32_t ExposedTexture;
+		Ref<Texture2D> ExposedTexture2D;
+
+		uint32_t HDRRenderBuffer;
+		Ref<Hazel::FrameBuffer> HDRBuffer;
+
+		uint32_t BloomTexture;
+		Ref<Texture2D> BloomTexture2D;
+
+		Ref<Hazel::FrameBuffer> CompositionBuffer;
+		Ref<Texture2D> FinalImageTexture2D;
+		uint32_t FinalImageTexture;
+
+		float quadVertices[24] = {
+			// positions   // texCoords
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			-1.0f, -1.0f,  0.0f, 0.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
+
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
+			 1.0f,  1.0f,  1.0f, 1.0f
+		};
+		
+		Ref<VertexArray> m_SquareVA;
 
 		uint32_t DirectionalShadowMap;
 		Ref<Texture2D> ShadowMap;
-		Hazel::Ref<Hazel::FrameBuffer> ShadowDepthBuffer;
+		Ref<Hazel::FrameBuffer> ShadowDepthBuffer;
 
 		
 

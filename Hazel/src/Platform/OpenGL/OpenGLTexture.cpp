@@ -7,32 +7,33 @@
 
 namespace Hazel {
 
-	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
+	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height, bool sRGB, bool HDR, bool bLinear)
 		: m_Width(width), m_Height(height)
 	{
 		HZ_PROFILE_FUNCTION();
 
-		m_InternalFormat = GL_RGBA8;
+		m_InternalFormat = sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+		m_InternalFormat = HDR ? GL_RGBA16F : m_InternalFormat;
 		m_DataFormat = GL_RGBA;
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
+	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool sRGB,bool HDR, bool bLinear)
 		
 	{
 		m_path = path;
 		HZ_PROFILE_FUNCTION();
 
 		int width, height, channels;
-		stbi_set_flip_vertically_on_load(1);
+		//stbi_set_flip_vertically_on_load(1);
 		stbi_uc* data = nullptr;
 		{
 			HZ_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std:string&)");
@@ -43,16 +44,43 @@ namespace Hazel {
 		m_Height = height;
 
 		GLenum internalFormat = 0, dataFormat = 0;
+		
+		if (channels == 1)
+		{
+			internalFormat  = dataFormat = GL_RED;
+		}
+
 		if (channels == 4)
 		{
-			internalFormat = GL_RGBA8;
+			if (HDR)
+			{
+				internalFormat = GL_RGBA16F;
+			}
+			else
+			{
+				internalFormat = sRGB? GL_SRGB8_ALPHA8 : GL_RGBA8;
+			}
 			dataFormat = GL_RGBA;
+
 		}
 		else if (channels == 3)
 		{
-			internalFormat = GL_RGB8;
-			dataFormat = GL_RGB;
+			if (HDR)
+			{
+				internalFormat = GL_RGB16F;
+			}
+			else
+			{
+				internalFormat = sRGB ? GL_SRGB8 : GL_RGB8;
+			}
+			
+
+				dataFormat = GL_RGB;
+
 		}
+		
+
+
 
 		m_InternalFormat = internalFormat;
 		m_DataFormat = dataFormat;
@@ -62,8 +90,8 @@ namespace Hazel {
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -105,7 +133,7 @@ namespace Hazel {
 	OpenGLTextureCube::OpenGLTextureCube(std::vector<std::string>& faces)
 	{
 
-		HZ_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
+		//HZ_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Format not supported!");
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
@@ -116,7 +144,7 @@ namespace Hazel {
 			if (data)
 			{
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-					0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+					0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
 				);
 				stbi_image_free(data);
 			}

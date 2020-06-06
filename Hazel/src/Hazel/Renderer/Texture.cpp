@@ -6,25 +6,25 @@
 
 namespace Hazel {
 
-	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
+	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height,bool sRGB, bool HDR, bool bLinear)
 	{
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-			case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(width, height);
+			case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(width, height,sRGB,HDR,bLinear);
 		}
 
 		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 
-	Ref<Texture2D> Texture2D::Create(const std::string& path)
+	Ref<Texture2D> Texture2D::Create(const std::string& path, bool sRGB,bool HDR, bool bLinear )
 	{
 		
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-			case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(path);
+			case RendererAPI::API::OpenGL:  return CreateRef<OpenGLTexture2D>(path,sRGB,HDR,bLinear);
 		}
 
 		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");

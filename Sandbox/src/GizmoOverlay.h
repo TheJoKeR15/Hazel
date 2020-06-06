@@ -40,7 +40,7 @@ public:
 	glm::fmat4 transform;
 
 	glm::vec3 scale;
-	glm::quat rotation = glm::quat(1,0.2,0,0);
+	glm::quat rotation;// = glm::quat(1, 0.2, 0, 0);
 	glm::vec3 translation;
 	glm::vec3 skew;
 	glm::vec4 perspective;

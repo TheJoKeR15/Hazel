@@ -48,6 +48,13 @@ namespace Hazel {
 		float m_CameraTranslationSpeed = 5.0f, m_CameraRotationSpeed = 1.f;
 		float m_FOV = 45.f;
 		bool m_firstMouseInput = true;
+
+		float ExposureComp = 0.f;
+		float Iso = 100.f;
+		float aperature = 16.f;
+		float ShutterSpeed = 100.f;
+
+		float BloomTreshold = 1;
 	};
 
 }

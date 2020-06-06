@@ -12,19 +12,16 @@ namespace Hazel
 	}
 	void Light::OnInit()
 	{
+		RecalculateTransforms();
 	}
 
 	void Light::OnBeginFrame()
 	{
-		//		RecalculateTransforms();
+		
 	}
 
 	void Light::OnUpdate(float dt)
 	{
-		
-
-		RecalculateTransforms();
-
 		if (bVisible)
 		{
 			//DrawMesh();
@@ -61,8 +58,9 @@ namespace Hazel
 
 	void PointLight::OnUpdate(float dt)
 	{
-		m_shader->SetFloat((std::string("pointLights[") + std::to_string(m_PointLightId) + std::string("].intensity")).c_str(), Intensity);
+		m_shader->SetFloat((std::string("pointLights[") + std::to_string(m_PointLightId) + std::string("].intensity")).c_str(), bActive ? Intensity : 0.f);
 		m_shader->SetFloat3((std::string("pointLights[") + std::to_string(m_PointLightId) + std::string("].position")), position);
+
 		Light::OnUpdate(dt);
 	}
 
@@ -78,7 +76,8 @@ namespace Hazel
 
 	void DirectionalLight::OnUpdate(float dt)
 	{
-		m_shader->SetFloat("DirLight.intensity", Intensity);
+
+		m_shader->SetFloat("DirLight.intensity",bActive ? Intensity : 0.f);
 		m_shader->SetFloat3("DirLight.direction", ForwardVector);
 		Light::OnUpdate(dt);
 	}
@@ -96,7 +95,7 @@ namespace Hazel
 	void SpotLight::OnUpdate(float dt)
 	{
 		
-		m_shader->SetFloat((std::string("spotLights[") + std::to_string(m_SpotLightId) + std::string("].intensity")).c_str(), Intensity);
+		m_shader->SetFloat((std::string("spotLights[") + std::to_string(m_SpotLightId) + std::string("].intensity")).c_str(), bActive ? Intensity : 0.f);
 		m_shader->SetFloat((std::string("spotLights[") + std::to_string(m_SpotLightId) + std::string("].Cutoff_In")).c_str(), CutoffInner);
 		m_shader->SetFloat((std::string("spotLights[") + std::to_string(m_SpotLightId) + std::string("].Cutoff_Out")).c_str(), CutoffOuter);
 		m_shader->SetFloat3((std::string("spotLights[") + std::to_string(m_SpotLightId) + std::string("].position")), position);

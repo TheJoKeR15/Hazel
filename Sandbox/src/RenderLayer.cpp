@@ -1,7 +1,7 @@
 #include "RenderLayer.h"
 
-#include "imgui/imgui.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "EntityProprieties.h"
+
 
 #include "Hazel/Core/Input.h"
 #include "Hazel.h"
@@ -34,7 +34,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         ListOfMaterials.push_back(std::make_shared<Hazel::Material>(MainShader, "MainMaterial"));
 
-        auto text = Hazel::Texture2D::Create("assets/textures/Check.png");
+        auto text = Hazel::Texture2D::Create("assets/textures/Check.png",true);
         auto text2 = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
         //auto text2 = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
         auto NewMat = std::make_shared<Hazel::Material>(MainShader, text, text2);
@@ -88,7 +88,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         GetScene()->AddEnitity(new Hazel::Model("assets/Scene.obj", "Scene", ListOfMaterials[1], MainShader));
 
-        //GetScene()->AddEnitity(SkyBox);
+        GetScene()->AddEnitity(SkyBox);
 
         GetScene()->InitializeScene(DirectionalShadowMapShader);
 
@@ -222,13 +222,13 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         ImGui::End();
     }
 
+    static bool first = true;
     void RenderLayer::SetupViewPort()
     {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport",NULL,flags);
-
         if (ViewPortSize.x != ImGui::GetWindowSize().x || ViewPortSize.y != ImGui::GetWindowSize().y )
         {
             GetScene()->InitializeBuffers(ViewPortSize.x, ViewPortSize.y);
@@ -236,7 +236,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         if (GetScene()->ShadowMapScale != lastres)
         {
             lastres = GetScene()->ShadowMapScale;
-            GetScene()->InitializeBuffers(ViewPortSize.x, ViewPortSize.y);
+            //GetScene()->InitializeBuffers(ViewPortSize.x, ViewPortSize.y);
         }
         ViewPortSize = ImGui::GetWindowSize();
         ViewPortPosition = ImGui::GetWindowPos();
@@ -252,6 +252,26 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         //ViewPortPosition = ImGui::GetWindowPos();
 
         ImGui::Image((void*)GetScene()->GetShadowMapTextrure(), ImVec2(1024,1024), ImVec2(0, 1), ImVec2(1, 0));
+        //GetScene()->GetCameraController()->SetNewViewPortSize(ViewPortSize.x, ViewPortSize.y);
+
+        ImGui::End();
+
+        ImGui::Begin("PostProcess", NULL, flags);
+
+        //ViewPortSize = ImGui::GetWindowSize();
+        //ViewPortPosition = ImGui::GetWindowPos();
+
+        ImGui::Image((void*)GetScene()->GetPostProcessTextrure(), ViewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+        //GetScene()->GetCameraController()->SetNewViewPortSize(ViewPortSize.x, ViewPortSize.y);
+
+        ImGui::End();
+
+        ImGui::Begin("FinalImage", NULL, flags);
+
+        //ViewPortSize = ImGui::GetWindowSize();
+        //ViewPortPosition = ImGui::GetWindowPos();
+
+        ImGui::Image((void*)GetScene()->GetFinalImageTextrure(), ViewPortSize, ImVec2(0, 1), ImVec2(1, 0));
         //GetScene()->GetCameraController()->SetNewViewPortSize(ViewPortSize.x, ViewPortSize.y);
 
         ImGui::End();
@@ -396,53 +416,21 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
                 if (node_open)
                 {
-               
-                if (ImGui::TreeNode("Position"))
+                    // Display the meshes of the model//
+                    auto model = dynamic_cast<Hazel::Model*>(SelectedEntity);
+                    if (model)
+                    {
+                        for (int i = 0; i < model->Getmeshes().size(); i++)
                         {
-                            ImGui::SliderFloat("##X", &entt->position.x, -5.f, 5.f, "X = %.3f");
-                            ImGui::SliderFloat("##Y", &entt->position.y, -5.f, 5.f, "Y = %.3f");
-                            ImGui::SliderFloat("##Z", &entt->position.z, -5.f, 5.f, "Z = %.3f");
-                            ImGui::TreePop();
-                        }
-                if (ImGui::TreeNodeEx("Rotation"))
-                {
-                    ImGui::SliderAngle("##X2", &entt->rotation.x, -90.f, 90.f, "Pitch = %.3f");
-                    ImGui::SliderAngle("##Y2", &entt->rotation.y, -90.f, 90.f, "Yaw = %.3f");
-                    ImGui::SliderAngle("##Z2", &entt->rotation.z, -90.f, 90.f, "Roll = %.3f");
-                    ImGui::TreePop();
-                }
-                if (ImGui::TreeNodeEx("Scale"))
-                {
-                    ImGui::SliderFloat("##X3", &entt->scale.x, -90.f, 90.f, "X = %.3f");
-                    ImGui::SliderFloat("##Y3", &entt->scale.y, -90.f, 90.f, "Y = %.3f");
-                    ImGui::SliderFloat("##Z3", &entt->scale.z, -90.f, 90.f, "Z = %.3f");
-                    ImGui::TreePop();
-                }
-                ImGui::Separator();
-                if (ImGui::TreeNodeEx("Meshes"))
-                {
-                    auto model = dynamic_cast<Hazel::Model*>(entt);
-                        if (model)
-                        {
-                            for (int i = 0; i < model->Getmeshes().size(); i++)
+                            if (ImGui::TreeNode((model->Getmeshes()[i].m_name.c_str())))
                             {
-                                if (ImGui::TreeNodeEx((model->Getmeshes()[i].m_name.c_str())))
-                                {
-                                    ImGui::Text(("Material :" + model->Getmeshes()[i].m_Material->materialName).c_str());
-                                    if (model->Getmeshes()[i].m_Material->m_Albedo) ImGui::Text(("Albedo texture :" + model->Getmeshes()[i].m_Material->m_Albedo->m_path).c_str());
-                                    if (model->Getmeshes()[i].m_Material->m_Specular)ImGui::Text(("Spec texture :" + model->Getmeshes()[i].m_Material->m_Specular->m_path).c_str());
-                                    ImGui::SliderFloat("Specular Intensity :" , &model->Getmeshes()[i].m_Material->SpecularIntensity,0,1);
-                                    ImGui::SliderFloat("Specular Exponent :", &model->Getmeshes()[i].m_Material->SpecularExponent, 0, 256.f);
-                                    ImGui::TreePop();
-                                }
+                                ImGui::TreePop();
                             }
+
                         }
-                    
+                    }
                     ImGui::TreePop();
                 }
-                ImGui::Separator();
-                ImGui::TreePop();
-            }
                 if (node_clicked != -1)
                 {
                     // Update selection state. Process outside of tree loop to avoid visual inconsistencies during the clicking-frame.
@@ -466,6 +454,23 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
     void RenderLayer::ShowCameraTab()
     {
         ImGui::Begin("Camera Properties");
+        ImGui::Text("Settings");
+        {
+            ImGui::Text("ManuelMode");
+            ImGui::DragFloat("Exposure Compenstaion", &GetScene()->GetCameraController()->ExposureComp, 0.1f, -8.f, 8.f, "%.1f ");
+            ImGui::DragFloat("Aperture", &GetScene()->GetCameraController()->aperature,0.5f, 0.1f, 24.f, "f/ %.1f ");
+            ImGui::DragFloat("ShutterSpeed", &GetScene()->GetCameraController()->ShutterSpeed, 0.1f, 01.f, 1000.f, "1/%.0f");
+            ImGui::DragFloat("ISO", &GetScene()->GetCameraController()->Iso, 1.f, 100.f, 16000.f, "ISO = %.0f");
+            ImGui::DragFloat("BloomTreshold", &GetScene()->GetCameraController()->BloomTreshold, 1.f, 0.0f, 3.f, " %.3f");
+            ImGui::Separator();
+            ImGui::SliderFloat("FOV", &GetScene()->GetCameraController()->m_FOV, 0.f, 120.f, "FOV = %.3f");
+            ImGui::SliderFloat("Sensitivity", &GetScene()->GetCameraController()->GetCamera().MouseSensitivity, 0.f, 8.f, "Sensitivity = %.3f");
+            ImGui::SliderFloat("Speed", &GetScene()->GetCameraController()->m_CameraTranslationSpeed, 0.f, 8.f, "Speed = %.3f");
+            ImGui::SliderFloat("##Far", &GetScene()->GetCameraController()->GetCamera().FarClip, 0.f, 120000.f, "Far = %.3f");
+            ImGui::SliderFloat("##Near", &GetScene()->GetCameraController()->GetCamera().NearClip, 0.f, 120.f, "Near = %.3f");
+            
+        }
+        ImGui::Separator();
         if (ImGui::TreeNode("Position"))
         {
             ImGui::SliderFloat("##X", &GetScene()->GetCameraController()->m_CameraPosition.x, -5.f, 5.f, "X = %.3f");
@@ -482,15 +487,6 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
             ImGui::TreePop();
         }
         ImGui::Spacing();
-        if (ImGui::TreeNodeEx("Settings"))
-        {
-            ImGui::SliderFloat("FOV", &GetScene()->GetCameraController()->m_FOV, 0.f, 120.f, "FOV = %.3f");
-            ImGui::SliderFloat("Sensitivity", &GetScene()->GetCameraController()->GetCamera().MouseSensitivity, 0.f, 8.f, "Sensitivity = %.3f");
-            ImGui::SliderFloat("Speed", &GetScene()->GetCameraController()->m_CameraTranslationSpeed, 0.f, 8.f, "Speed = %.3f");
-            ImGui::SliderFloat("##Far", &GetScene()->GetCameraController()->GetCamera().FarClip, 0.f, 120000.f, "Far = %.3f");
-            ImGui::SliderFloat("##Near", &GetScene()->GetCameraController()->GetCamera().NearClip, 0.f, 120.f, "Near = %.3f");
-            ImGui::TreePop();
-        }
         ImGui::End();
         ImGui::Begin("Shadow Properties");
         if (ImGui::TreeNode("Position"))
@@ -521,8 +517,8 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
             ImGui::SliderFloat("##ssdfg", &GetScene()->left, -30.f, 30.f, "left = %.3f");
             ImGui::SliderFloat("##sdf", &GetScene()->right, -30.f, 30.f, "right = %.3f");
 
-            ImGui::SliderInt("Resolution", &GetScene()->ShadowMapScale, 0.f, 10.f);
-            ImGui::SliderFloat("Bias",&GetScene()->ShadowBias, 0.f, 10.f);
+            ImGui::SliderInt("Resolution", &GetScene()->ShadowMapScale, 0, 10);
+            ImGui::SliderFloat("Bias",&GetScene()->ShadowBias, 0.f, 1.f);
 
             ImGui::TreePop();
         }
@@ -552,13 +548,6 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         m_GizmoLayer->PosX = ViewPortPosition.x;
         m_GizmoLayer->PosY = ViewPortPosition.y;
 
-        ImGui::Begin("Gizmo Debug");
-        ImGui::SliderFloat("PosX", &m_GizmoLayer->PosX, -100, 100);
-        ImGui::SliderFloat("PosY", &m_GizmoLayer->PosY, -100, 100);
-
-        ImGui::SliderFloat("SizeX", &m_GizmoLayer->SizeX, -100, 100);
-        ImGui::SliderFloat("SizeY", &m_GizmoLayer->SizeY, -100, 100);
-        ImGui::End();
 
         m_GizmoLayer->DrawGizmo();
 
@@ -583,9 +572,19 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         // add the debug Pannel
         ShowDebugPanel();
 
+        ShowPropertiesPanel(SelectedEntity);
+
         // Temporary
         ImGui::ShowDemoWindow();
         // Gizmo
+
+        ImGui::Begin("Gizmo Debug");
+        ImGui::SliderFloat("PosX", &m_GizmoLayer->PosX, -100, 100);
+        ImGui::SliderFloat("PosY", &m_GizmoLayer->PosY, -100, 100);
+
+        ImGui::SliderFloat("SizeX", &m_GizmoLayer->SizeX, -100, 100);
+        ImGui::SliderFloat("SizeY", &m_GizmoLayer->SizeY, -100, 100);
+        ImGui::End();
         //DrawGizmo();
     }
 

@@ -35,8 +35,11 @@ namespace Hazel
 
 		float Sky_scale = 600.f;
 
+		float SkyIntensity = 1.0f;
+
 		void DrawMesh()
 		{
+			
 			Mesh->Draw(m_shader, glm::scale(transform, glm::vec3(Sky_scale)));
 		}
 	};

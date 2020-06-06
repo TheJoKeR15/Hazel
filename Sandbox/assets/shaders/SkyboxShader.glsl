@@ -16,11 +16,12 @@ in vec3 v_TexCoord;
 
 // Material Uniforms
 uniform samplerCube Cubemap;
+uniform float SkyIntensity;
 
   
 void main()
 {
-    FinalColor = texture(Cubemap, v_TexCoord);
+    FinalColor = texture(Cubemap, v_TexCoord) * SkyIntensity;
 }
 
 #type vertex

@@ -96,6 +96,9 @@ namespace Hazel {
 						layer->OnImGuiRender();
 				}
 				m_ImGuiLayer->End();
+
+				
+				
 			}
 
 			m_Window->OnUpdate();

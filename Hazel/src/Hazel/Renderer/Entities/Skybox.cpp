@@ -24,7 +24,7 @@ namespace Hazel
 		//m_shader->SetBool("bHasSpeclarTexture", true);
 		TextureCubeMap->Bind();
 		m_shader->SetInt("Cubemap", 0);
-
+		
 		if (bVisible)
 		{
 			//DrawMesh();
@@ -44,7 +44,10 @@ namespace Hazel
 	void Skybox::DrawMainPass()
 	{
 		if (bVisible)
-		{
+		{	
+			m_shader->Bind();
+			m_shader->SetFloat("SkyIntensity", SkyIntensity);
+			
 			DrawMesh();
 		}
 	}

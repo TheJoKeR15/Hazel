@@ -22,6 +22,7 @@ namespace Hazel {
 
 		virtual void FrontCulling() = 0;
 		virtual void BackCulling() = 0;
+		
 
 		virtual void InitFrameBuffer() = 0;
 		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;

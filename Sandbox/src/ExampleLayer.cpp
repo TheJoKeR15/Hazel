@@ -135,7 +135,7 @@ ExampleLayer::ExampleLayer()
 
 	MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
 	
-	m_Texture = Hazel::Texture2D::Create("assets/textures/Check.png");
+	m_Texture = Hazel::Texture2D::Create("assets/textures/Check.png",true);
 	m_Texture->Bind(0);
 
 	MainShader->SetInt("u_Texture", 0);

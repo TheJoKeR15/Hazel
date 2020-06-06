@@ -42,6 +42,9 @@ namespace Hazel {
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
+
+		// Enabling Srgb for the frame buffers
+		//glEnable(GL_FRAMEBUFFER_SRGB);
 	}
 
 	void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

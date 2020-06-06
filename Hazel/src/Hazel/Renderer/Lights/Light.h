@@ -29,6 +29,7 @@ namespace Hazel
 		bool bActive = true;
 
 		float Intensity = 1.f;
+
 		float Radius = 5.f;
 		glm::vec3 LightColor = glm::vec3(1.f);
 		

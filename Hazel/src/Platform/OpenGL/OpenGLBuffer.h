@@ -35,10 +35,10 @@ namespace Hazel {
 		OpenGLIndexBuffer(std::vector<uint32_t> indices, uint32_t count);
 		virtual ~OpenGLIndexBuffer();
 
-		virtual void Bind() const;
-		virtual void Unbind() const;
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
 
-		virtual uint32_t GetCount() const { return m_Count; }
+		virtual uint32_t GetCount() const override { return m_Count; }
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Count;
@@ -50,17 +50,28 @@ namespace Hazel {
 		OpenGLFrameBuffer(uint32_t& Index, int Width, int height, bool bDepthOnly = false);
 		virtual ~OpenGLFrameBuffer();
 
-		virtual void Bind() const;
-		virtual void Unbind() const;
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
 
 		virtual uint32_t* GetTexture()  ;
 
-		virtual uint32_t AttachColorTexture2D(int Width, int height, int X, int Y) ;
-		virtual uint32_t AttachDepthTexture2D(int Width, int height) ;
-		virtual uint32_t AttachRenderBuffer(int Width, int height);
+		virtual uint32_t CreateColorTexture2D(int Width, int height, bool bLinear = false, bool HDR = false) override;
+		virtual uint32_t CreateAndAttachDepthTexture2D(int Width, int height) override;
+		virtual uint32_t CreateAndAttachRenderBuffer(int Width, int height) override;
+
+		void DrawBuffers(int n) override;
+
+		virtual void AttachColorTexture2D(uint32_t& Texture, int Width, int height,int index = 0)override;
+		virtual void AttachDepthTexture2D(uint32_t& Texture, int Width, int height)override;
+
+		virtual void AttachColorCubemap(uint32_t& Texture, int Width, int height)override;
+		virtual void AttachDepthCubemap(uint32_t& Texture, int Width, int height)override;
+
 		static uint32_t m_Index ;
 		virtual void FreeBuffer() const;
 	private:
+
+		
 		
 		uint32_t Buffer ;
 

@@ -51,6 +51,7 @@ namespace Hazel {
 				s_RendererAPI->BackCulling();
 			}
 		}
+
 	private:
 		static Scope<RendererAPI> s_RendererAPI;
 	};

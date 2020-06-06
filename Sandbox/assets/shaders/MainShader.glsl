@@ -2,7 +2,7 @@
 #version 330 core
 
 
-layout (location = 0)out vec4 FinalColor;  
+layout (location = 0)out vec4 FinalColor;
 
 in vec3 v_Color;
 in vec2 v_TexCoord;
@@ -82,7 +82,8 @@ uniform bool bHasSpeclarTexture = false;
 
  float SampleShadow(sampler2D ShadowMap,vec2 Coords, float Compare)
  {
-     return step( texture(ShadowMap,Coords).r,Compare);
+    //return Compare > texture(ShadowMap,Coords).r  ? 1.0 : 0.0;
+    return step(  texture(ShadowMap,Coords).r,Compare);
  }
 
  float SampleShadowLinear(sampler2D ShadowMap,vec2 Coords,float Compare)
@@ -104,19 +105,19 @@ uniform bool bHasSpeclarTexture = false;
 
   float SampleShadowPCF(sampler2D ShadowMap,vec2 Coords,float Compare)
  {
-    const int SAMPLE_START = (PCFSamples - 1)/2;
+    const float SAMPLE_START = (PCFSamples - 1.0)/2.0;
     const float NUM_SAMPLE_SQUARED = PCFSamples * PCFSamples;
 
     float result = 0.f;
-    for(int x = -SAMPLE_START; x <= SAMPLE_START; ++x)
+    for(float x = -SAMPLE_START; x <= SAMPLE_START; x += 1.0f)
     {
-        for(int y = -SAMPLE_START; y <= SAMPLE_START; ++y)
+        for(float y = -SAMPLE_START; y <= SAMPLE_START; y+= 1.0f)
         {
         vec2 coordOffset = vec2(x,y)*TEXELSIZE;
         result += SampleShadowLinear(ShadowMap, Coords + coordOffset , Compare);
         }    
     }
-    return result/NUM_SAMPLE_SQUARED;
+    return result/(NUM_SAMPLE_SQUARED);
  }
 
  float ShadowCalculation(vec4 fragPosLightSpace,float Bias)
@@ -143,11 +144,13 @@ uniform bool bHasSpeclarTexture = false;
 vec3 CalcDirLight(DirrectionalLight light, vec3 normal, vec3 viewDirection)
 {
     vec3 lightDir = normalize(-light.direction);
+    
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDirection, reflectDir), 0.0), SpecularExponent);
+    vec3 HalfDir = normalize(lightDir + viewDirection);
+    float spec = pow(max(dot(normal, HalfDir), 0.0), SpecularExponent);
     // combine results
         ////Diffuse////
     vec3 Diffuse = vec3(0.f);
@@ -172,11 +175,11 @@ vec3 CalcDirLight(DirrectionalLight light, vec3 normal, vec3 viewDirection)
         Specular = SpecularStrenght;
     }
     
-    float bias = max(ShadowBias * (1.0 - dot(normal, lightDir)), 0); 
+    float bias = max(ShadowBias * (1.0 - dot(normal, lightDir)), 0.005); 
     float shadow =  ShadowCalculation(FragPosLightSpace,bias);
 
     return ((diff * Diffuse + spec * Specular ) * light.intensity * (1.0 - shadow ))+ Ambient ;
-    
+
 } 
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDirection)
@@ -186,10 +189,11 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDirect
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDirection, reflectDir), 0.0), SpecularExponent);
+    vec3 HalfDir = normalize(lightDir + viewDirection);
+    float spec = pow(max(dot(normal, HalfDir), 0.0), SpecularExponent);
     // attenuation
     float Distance = length(light.position - v_PositionWS);
-    float attenuation =  1.0 / (constant + linear * Distance + quadratic * (Distance * Distance));
+    float attenuation =  1.0 / (Distance * Distance);
     // combine results
     vec3 Diffuse = vec3(0.f);
     if (bHasAlbedoTexture)
@@ -222,10 +226,11 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDirectio
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDirection, reflectDir), 0.0), SpecularExponent);
+    vec3 HalfDir = normalize(lightDir + viewDirection);
+    float spec = pow(max(dot(normal, HalfDir), 0.0), SpecularExponent);
     // attenuation
     float Distance = length(light.position - v_PositionWS);
-    float attenuation =  1.0 / (constant + linear * Distance + quadratic * (Distance * Distance));
+    float attenuation =  1.0 /  (Distance * Distance);
 
     float theta = dot(lightDir, normalize(-light.direction)); 
     float epsilon = light.Cutoff_In - light.Cutoff_Out;
@@ -268,10 +273,10 @@ void main()
 
     vec3 ViewDirection = normalize(CameraPosition - v_PositionWS);
 
-    vec3 Result = vec3(0.f);
+    vec3 Result = vec3(0.0);
 
     // phase 1: Directional lighting
-    //Result = CalcDirLight(DirLight, Normal, ViewDirection);
+    Result = CalcDirLight(DirLight, Normal, ViewDirection);
     // phase 2: Point lights
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
@@ -284,8 +289,16 @@ void main()
     }
 
     //FinalColor = vec4(vec3(shdow),1.0f);
+    float gamma = 2.2;
+    
     FinalColor = vec4(Result, 1.0);
+
+
+
+
     //FinalColor = FragPosLightSpace;
+
+    //FinalColor.rgb = pow(FinalColor.rgb, vec3(1.0/gamma));
 
     /*
     // SPECULAR // 

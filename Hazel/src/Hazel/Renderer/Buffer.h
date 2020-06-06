@@ -151,9 +151,17 @@ namespace Hazel {
 
 		virtual uint32_t* GetTexture() = 0;
 
-		virtual uint32_t AttachColorTexture2D(int Width, int height, int X, int Y)  = 0;
-		virtual uint32_t AttachDepthTexture2D(int Width, int height) = 0;
-		virtual uint32_t AttachRenderBuffer(int Width, int height)  = 0;
+		virtual uint32_t CreateColorTexture2D(int Width, int height,bool bLinear = false,bool HDR = false)  = 0;
+		virtual uint32_t CreateAndAttachDepthTexture2D(int Width, int height) = 0;
+		virtual uint32_t CreateAndAttachRenderBuffer(int Width, int height)  = 0;
+
+		virtual void DrawBuffers(int n) = 0;
+
+		virtual void AttachColorTexture2D(uint32_t& Texture, int Width, int height,int index = 0) = 0;
+		virtual void AttachDepthTexture2D(uint32_t& Texture, int Width, int height) = 0;
+																				    
+		virtual void AttachColorCubemap(uint32_t& Texture, int Width, int height)	= 0;
+		virtual void AttachDepthCubemap(uint32_t& Texture, int Width, int height)	= 0;
 
 		static Ref<FrameBuffer> Create(uint32_t &Buffer, int Width, int height, bool bDepthOnly = false);
 
