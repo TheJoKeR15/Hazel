@@ -152,7 +152,7 @@ namespace Hazel {
 		virtual uint32_t* GetTexture() = 0;
 
 		virtual uint32_t CreateColorTexture2D(int Width, int height,bool bLinear = false,bool HDR = false)  = 0;
-		virtual uint32_t CreateAndAttachDepthTexture2D(int Width, int height) = 0;
+		virtual uint32_t CreateDepthTexture2D(int Width, int height) = 0;
 		virtual uint32_t CreateAndAttachRenderBuffer(int Width, int height)  = 0;
 
 		virtual void DrawBuffers(int n) = 0;

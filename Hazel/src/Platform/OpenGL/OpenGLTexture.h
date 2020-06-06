@@ -11,6 +11,8 @@ namespace Hazel {
 	public:
 		OpenGLTexture2D(uint32_t width, uint32_t height, bool sRGB = false, bool HDR = false, bool bLinear = true);
 		OpenGLTexture2D(const std::string& path, bool sRGB = false , bool HDR = false, bool bLinear = true);
+		// only for depth componenet
+		OpenGLTexture2D( bool bLinear ,uint32_t width, uint32_t height);
 		virtual ~OpenGLTexture2D();
 
 		virtual uint32_t GetWidth() const override { return m_Width;  }

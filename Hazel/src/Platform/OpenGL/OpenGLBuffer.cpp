@@ -195,7 +195,7 @@ namespace Hazel {
 		return newTexture;
 	}
 
-	uint32_t OpenGLFrameBuffer::CreateAndAttachDepthTexture2D(int width, int height)
+	uint32_t OpenGLFrameBuffer::CreateDepthTexture2D(int width, int height)
 	{
 		// Resize the viewport to the size of the Buffer
 		glViewport(0, 0, width, height);
@@ -212,10 +212,7 @@ namespace Hazel {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		//attach it to the framebuffer:
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DepthMap, 0);
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
+
 
 		return DepthMap;
 	}
@@ -251,6 +248,12 @@ namespace Hazel {
 
 	void OpenGLFrameBuffer::AttachDepthTexture2D(uint32_t& Texture, int Width, int height)
 	{
+		Bind();
+		//glBindTexture(GL_TEXTURE_2D, Texture);
+		//attach it to the framebuffer:
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Texture, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
 	}
 
 	void OpenGLFrameBuffer::AttachColorCubemap(uint32_t& Texture, int Width, int height)

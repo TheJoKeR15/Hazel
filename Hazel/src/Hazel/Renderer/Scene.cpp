@@ -50,37 +50,31 @@ namespace Hazel {
 	{
 		m_ViewPortSizeX = ViewPortSizeX;
 		m_ViewPortSizeY = ViewPortSizeY;
+
 		// Viewport Frame buffer
 		uint32_t a;
 		FrameBuffer = Hazel::FrameBuffer::Create(a, (int)ViewPortSizeX, (int)ViewPortSizeY);
 		FrameBuffer->Bind();
-		FrameBuffertexture = FrameBuffer->CreateColorTexture2D((int)ViewPortSizeX, (int)ViewPortSizeY,false,true);
-		FrameBuffer->AttachColorTexture2D(FrameBuffertexture, (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
-		FrameRenderBuffer = FrameBuffer->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
-
 		FrameBuffertexture2D = Texture2D::Create((int)ViewPortSizeX, (int)ViewPortSizeY,false,true,false);
-		FrameBuffertexture2D->SetID(FrameBuffertexture);
-		
+		FrameBuffer->AttachColorTexture2D(*FrameBuffertexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
+		FrameRenderBuffer = FrameBuffer->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
 		FrameBuffer->Unbind();
+
 		//Init ShadowDepthBuffer
 		ShadowDepthBuffer = Hazel::FrameBuffer::Create(Buffer1, SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height* ShadowMapScale);
 		ShadowDepthBuffer->Bind();
-		DirectionalShadowMap = ShadowDepthBuffer->CreateAndAttachDepthTexture2D(SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale);
+		ShadowMap = Texture2D::CreateDepth(SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale,false);
+		ShadowDepthBuffer->AttachDepthTexture2D(*ShadowMap->GetID(), SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale);
 		ShadowDepthBuffer->Unbind();
-		ShadowMap = Texture2D::Create(SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale,false,false);
-		ShadowMap->SetID(DirectionalShadowMap);
-		
+
 		// Post Process Buffer
 		HDRBuffer = Hazel::FrameBuffer::Create(Buffer2, (int)ViewPortSizeX, (int)ViewPortSizeY);
 		HDRBuffer->Bind();
-		ExposedTexture = HDRBuffer->CreateColorTexture2D((int)ViewPortSizeX, (int)ViewPortSizeY,false, true);
-		BloomTexture = HDRBuffer->CreateColorTexture2D((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
-		HDRBuffer->AttachColorTexture2D(ExposedTexture, (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
-		HDRBuffer->AttachColorTexture2D(BloomTexture, (int)ViewPortSizeX, (int)ViewPortSizeY, 1);
 		BloomTexture2D = Texture2D::Create((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
-		BloomTexture2D->SetID(BloomTexture);
 		ExposedTexture2D = Texture2D::Create((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
-		ExposedTexture2D->SetID(ExposedTexture);
+		HDRBuffer->AttachColorTexture2D(*ExposedTexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
+		HDRBuffer->AttachColorTexture2D(*BloomTexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 1);
+
 		HDRRenderBuffer = HDRBuffer->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
 		FrameBuffertexture2D->Bind(m_PostProcessShader->GetNextTextureSlotIndex());
 		HDRBuffer->DrawBuffers(2);
@@ -90,11 +84,12 @@ namespace Hazel {
 		//uint32_t Buffer3;
 		CompositionBuffer = Hazel::FrameBuffer::Create(Buffer3, (int)ViewPortSizeX, (int)ViewPortSizeY);
 		CompositionBuffer->Bind();
-		FinalImageTexture = CompositionBuffer->CreateColorTexture2D((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
-		CompositionBuffer->AttachColorTexture2D(FinalImageTexture, (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
-		auto renderbuffer = HDRBuffer->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
 		FinalImageTexture2D = Texture2D::Create((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
-		FinalImageTexture2D->SetID(FinalImageTexture);
+		//FinalImageTexture2D->SetID(FinalImageTexture);
+		//FinalImageTexture = CompositionBuffer->CreateColorTexture2D((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
+		CompositionBuffer->AttachColorTexture2D(*FinalImageTexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
+		auto renderbuffer = HDRBuffer->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
+		
 		ExposedTexture2D->Bind(m_CompositionShader->GetNextTextureSlotIndex());
 		BloomTexture2D->Bind(m_CompositionShader->GetNextTextureSlotIndex());
 		CompositionBuffer->Unbind();

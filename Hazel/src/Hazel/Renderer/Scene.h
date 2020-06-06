@@ -58,13 +58,13 @@ namespace Hazel
 
 		glm::vec3* GetBackGroundColor() { return &BackGroundColor; };
 
-		uint32_t GetFrameBufferTextrure() { return FrameBuffertexture; };
+		uint32_t GetFrameBufferTextrure() { return  *FrameBuffertexture2D->GetID(); };
 
-		uint32_t GetShadowMapTextrure() { return DirectionalShadowMap; };
+		uint32_t GetShadowMapTextrure() { return *ShadowMap->GetID(); };
 
-		uint32_t GetPostProcessTextrure() { return ExposedTexture; };
+		uint32_t GetPostProcessTextrure() { return *ExposedTexture2D->GetID(); };
 
-		uint32_t GetFinalImageTextrure() { return FinalImageTexture; };
+		uint32_t GetFinalImageTextrure() { return *FinalImageTexture2D->GetID(); };
 
 		const std::vector<Entity*>& GetEntities() { return Entities; };
 
@@ -111,23 +111,22 @@ namespace Hazel
 		uint32_t Buffer2;
 		uint32_t Buffer3;
 
-		uint32_t FrameBuffertexture;
 		Ref<Texture2D> FrameBuffertexture2D;
 		uint32_t FrameRenderBuffer;
 		Ref<FrameBuffer> FrameBuffer;
 		
-		uint32_t ExposedTexture;
+		
 		Ref<Texture2D> ExposedTexture2D;
 
 		uint32_t HDRRenderBuffer;
 		Ref<Hazel::FrameBuffer> HDRBuffer;
 
-		uint32_t BloomTexture;
+		
 		Ref<Texture2D> BloomTexture2D;
 
 		Ref<Hazel::FrameBuffer> CompositionBuffer;
 		Ref<Texture2D> FinalImageTexture2D;
-		uint32_t FinalImageTexture;
+		
 
 		float quadVertices[24] = {
 			// positions   // texCoords
