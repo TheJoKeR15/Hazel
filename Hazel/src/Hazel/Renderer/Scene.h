@@ -176,7 +176,7 @@ namespace Hazel
 		float bloom_Intensity = 1.f;
 		bool bloom_first = true;
 
-		static const int bloomSize = 5;
+		static const int bloomSize = 4;
 		// 1/2 
 		// 1/4
 		// 1/8

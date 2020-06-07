@@ -95,7 +95,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         GetScene()->InitializeScene();
 
-        GetScene()->InitializeCommunBuffers(ViewPortSize.x, ViewPortSize.y);
+        GetScene()->InitializeCommunBuffers(1280.f, 720.f);
     }
 
     void RenderLayer::OnDetach()
@@ -231,8 +231,9 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(1024.f, 720.f));
         ImGui::Begin("Viewport",NULL,flags);
-        if (ViewPortSize.x != ImGui::GetWindowSize().x || ViewPortSize.y != ImGui::GetWindowSize().y )
+        if (ViewPortSize.x != 0 & ( ViewPortSize.x != ImGui::GetWindowSize().x || ViewPortSize.y != ImGui::GetWindowSize().y ))
         {
             GetScene()->InitializeCommunBuffers(ViewPortSize.x, ViewPortSize.y);
         }
@@ -302,7 +303,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         ImGui::ColorEdit3("Background Color ", glm::value_ptr(*GetScene()->GetBackGroundColor()));
         ImGui::End();
     }
-
+static bool sRGB;
     void RenderLayer::ShowDebugPanel()
     {
         ImGui::Begin("Debug");
@@ -332,6 +333,61 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
             auto n = GetScene()->GetEntities().size();
             GetScene()->GetEntities()[n-1]->scale = glm::vec3(0.1f);
         }
+        /// TExture Edit
+        //---------------------------------------
+        ImGui::Begin("Texture Editor");
+        auto Model = dynamic_cast<Hazel::Model*>(SelectedEntity);
+        if (Model)
+        {
+            auto meshes = Model->Getmeshes();
+            for (int i = 0; i < meshes.size(); i++)
+            {
+                auto mesh = meshes[i];
+                auto mat = mesh.m_Material;
+                auto text1 = mat->m_Albedo;
+                if (text1)
+                {
+                    
+                    if (ImGui::CollapsingHeader((mat->materialName + "ALBEDO").c_str()))
+                    {
+                        ImGui::Checkbox("Generate MipMaps", &text1->bGenMips);
+                        ImGui::Checkbox("Linear Filtering", &text1->bLinearFiltering);
+                        ImGui::Checkbox("Clamp", &text1->bClamp);
+                        ImGui::Checkbox("sRGB", &sRGB);
+                        text1->m_Format = sRGB ? TEXTURE_FORMAT::sRGB : TEXTURE_FORMAT::RGB;
+                        if (ImGui::Button("Set Parameters"))
+                        {
+                            //text1->SetTextureParameters();
+                        }
+                    }
+                }
+            }
+        }
+        if (ListOfMaterials[1]->bHasAlbedoTexture)
+        {
+            ImGui::Text("Albedo pointer = %p", ListOfMaterials[1]->m_Albedo);
+            auto Text = ListOfMaterials[1]->m_Albedo;
+            if (false)
+            {
+                
+                if (ImGui::CollapsingHeader("List Albedo"))
+                {
+                    ImGui::Checkbox("Generate MipMaps", &Text->bGenMips);
+                    ImGui::Checkbox("Linear Filtering", &Text->bLinearFiltering);
+                    ImGui::Checkbox("sRGB", &sRGB);
+                    Text->m_Format = sRGB ? TEXTURE_FORMAT::RGB : TEXTURE_FORMAT::sRGB;
+                    if (ImGui::Button("Set Parameters"))
+                    {
+                        //Text->SetTextureParameters();
+                    }
+                }
+                
+                
+            }
+        }
+
+        ImGui::End();
+        //----------------------------------------
         for (int i = 0; i < ListOfMaterials.size(); i++)
         {
             std::string strng = std::string("Material ") + std::to_string(i);

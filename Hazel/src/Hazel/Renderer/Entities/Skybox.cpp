@@ -22,6 +22,7 @@ namespace Hazel
 	void Skybox::OnUpdate(float dt)
 	{
 		//m_shader->SetBool("bHasSpeclarTexture", true);
+		m_shader->Bind();
 		TextureCubeMap->Bind();
 		m_shader->SetInt("Cubemap", 0);
 		

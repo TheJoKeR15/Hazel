@@ -14,23 +14,34 @@ namespace Hazel
 		uint32_t a;
 		MainFrameBuffer = Hazel::FrameBuffer::Create(a, (int)ViewPortSizeX, (int)ViewPortSizeY);
 		MainFrameBuffer->Bind();
-		FrameBuffertexture2D = Texture2D::Create((int)ViewPortSizeX, (int)ViewPortSizeY, false, true, false);
+		FrameBuffertexture2D = Texture2D::CreateEmpty((int)ViewPortSizeX, (int)ViewPortSizeY);
+		FrameBuffertexture2D->m_Format = TEXTURE_FORMAT::RGB32F;
+		FrameBuffertexture2D->GenerateTexture();
 		MainFrameBuffer->AttachColorTexture2D(*FrameBuffertexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
 		FrameRenderBuffer = MainFrameBuffer->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
 		MainFrameBuffer->Unbind();
 
 		//Init ShadowDepthBuffer
-		ShadowDepthBuffer = Hazel::FrameBuffer::Create(Buffer1, SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale);
+		ShadowDepthBuffer = Hazel::FrameBuffer::Create(Buffer1, SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale, true);
 		ShadowDepthBuffer->Bind();
-		ShadowMap = Texture2D::CreateDepth(SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale, false,false);
+		//ShadowMap = Texture2D::CreateDepth(SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale, false,false);
+		ShadowMap = Texture2D::CreateEmpty(SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale);
+		ShadowMap->m_Format = TEXTURE_FORMAT::DEPTH32;
+		ShadowMap->GenerateTexture();
 		ShadowDepthBuffer->AttachDepthTexture2D(*ShadowMap->GetID(), SHADOW_MAP_Width * ShadowMapScale, SHADOW_MAP_Height * ShadowMapScale);
 		ShadowDepthBuffer->Unbind();
 
 		// Post Process Buffer
 		HDRBuffer = Hazel::FrameBuffer::Create(Buffer2, (int)ViewPortSizeX, (int)ViewPortSizeY);
 		HDRBuffer->Bind();
-		BloomTexture2D = Texture2D::Create((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
-		ExposedTexture2D = Texture2D::Create((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
+		BloomTexture2D = Texture2D::CreateEmpty((int)ViewPortSizeX, (int)ViewPortSizeY);
+		BloomTexture2D->m_Format = TEXTURE_FORMAT::RGB32F;
+		BloomTexture2D->GenerateTexture();
+
+		ExposedTexture2D = Texture2D::CreateEmpty((int)ViewPortSizeX, (int)ViewPortSizeY);
+		ExposedTexture2D->m_Format = TEXTURE_FORMAT::RGB32F;
+		ExposedTexture2D->GenerateTexture();
+
 		HDRBuffer->AttachColorTexture2D(*ExposedTexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
 		HDRBuffer->AttachColorTexture2D(*BloomTexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 1);
 
@@ -43,7 +54,9 @@ namespace Hazel
 		//uint32_t Buffer3;
 		CompositionBuffer = Hazel::FrameBuffer::Create(Buffer3, (int)ViewPortSizeX, (int)ViewPortSizeY);
 		CompositionBuffer->Bind();
-		FinalImageTexture2D = Texture2D::Create((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
+		FinalImageTexture2D = Texture2D::CreateEmpty((int)ViewPortSizeX, (int)ViewPortSizeY);
+		FinalImageTexture2D->m_Format = TEXTURE_FORMAT::RGB32F;
+		FinalImageTexture2D->GenerateTexture();
 		//FinalImageTexture2D->SetID(FinalImageTexture);
 		//FinalImageTexture = CompositionBuffer->CreateColorTexture2D((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
 		CompositionBuffer->AttachColorTexture2D(*FinalImageTexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
@@ -65,21 +78,30 @@ namespace Hazel
 			auto dsfactor = DsFactors[i];
 			bloomHFBOs[i] = FrameBuffer::Create(bloom_Buffer1, m_ViewPortSizeX/ dsfactor, m_ViewPortSizeY/ dsfactor);
 			bloomHFBOs[i]->Bind();
-			bloomGaussiansH[i] = Texture2D::Create(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor, false, true, true, true);
+			bloomGaussiansH[i] = Texture2D::CreateEmpty(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
+			bloomGaussiansH[i]->m_Format = TEXTURE_FORMAT::RGB16F;
+			bloomGaussiansH[i]->GenerateTexture();
+
 			bloomHFBOs[i]->AttachColorTexture2D(*bloomGaussiansH[i]->GetID(), m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
 			bloomHFBOs[i]->CreateAndAttachRenderBuffer(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
 			bloomHFBOs[i]->Unbind();
 
 			bloomVFBOs[i] = FrameBuffer::Create(bloom_Buffer1, m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
 			bloomVFBOs[i]->Bind();
-			bloomGaussiansV[i] = Texture2D::Create(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor, false, true, true, true);
+			bloomGaussiansV[i] = Texture2D::CreateEmpty(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
+			bloomGaussiansV[i]->m_Format = TEXTURE_FORMAT::RGB16F;
+			bloomGaussiansV[i]->GenerateTexture();
+
 			bloomVFBOs[i]->AttachColorTexture2D(*bloomGaussiansV[i]->GetID(), m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
 			bloomVFBOs[i]->CreateAndAttachRenderBuffer(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
 			bloomVFBOs[i]->Unbind();
 
 			bloomDFBOs[i] = FrameBuffer::Create(bloom_Buffer1, m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
 			bloomDFBOs[i]->Bind();
-			bloomDownSampled[i] = Texture2D::Create(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor, false, true, true, true);
+			bloomDownSampled[i] = Texture2D::CreateEmpty(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
+			bloomDownSampled[i]->m_Format = TEXTURE_FORMAT::RGB16F;
+			bloomDownSampled[i]->GenerateTexture();
+
 			bloomDFBOs[i]->AttachColorTexture2D(*bloomDownSampled[i]->GetID(), m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
 			bloomDFBOs[i]->CreateAndAttachRenderBuffer(m_ViewPortSizeX / dsfactor, m_ViewPortSizeY / dsfactor);
 			bloomDFBOs[i]->Unbind();
@@ -88,7 +110,10 @@ namespace Hazel
 
 		bloom_FBO1 = FrameBuffer::Create(bloom_Buffer1, m_ViewPortSizeX / 4, m_ViewPortSizeY / 4);
 		bloom_FBO1->Bind();
-		bloomDownsampl01 = Texture2D::Create(m_ViewPortSizeX / 4, m_ViewPortSizeY / 4, false, true, true, true);
+		bloomDownsampl01 = Texture2D::CreateEmpty(m_ViewPortSizeX / 4, m_ViewPortSizeY / 4);
+		bloomDownsampl01->m_Format = TEXTURE_FORMAT::RGB16F;
+		bloomDownsampl01->GenerateTexture();
+
 		bloom_FBO1->AttachColorTexture2D(*bloomDownsampl01->GetID(), m_ViewPortSizeX / 4, m_ViewPortSizeY / 4);
 		bloom_FBO1->CreateAndAttachRenderBuffer(m_ViewPortSizeX / 4, m_ViewPortSizeY / 4);
 		bloom_FBO1->Unbind();

@@ -280,11 +280,11 @@ namespace Hazel {
                 std::string path = directory +'/'+ str.C_Str()  ;
                 if (type == aiTextureType_BASE_COLOR || type == aiTextureType_DIFFUSE)
                 {
-                    texture = Texture2D::Create(path,true);
+                    texture = Texture2D::Create(path,true,true);
                 }
                 else
                 {
-                    texture = Texture2D::Create(path, false);
+                    texture = Texture2D::Create(path, false,true);
                 }
                 
                 textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.

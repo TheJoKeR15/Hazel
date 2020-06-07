@@ -21,6 +21,7 @@ namespace Hazel
 			{
 				if (EnTT->bRecieveShadow)
 				{
+					EnTT->m_Shader->Bind();
 					ShadowMap->Bind(3);
 					EnTT->m_Shader->SetInt("DirectionalShadowMap", 3);
 					EnTT->m_Shader->SetMat4("lightSpaceMatrix", lightProjection * lightView);

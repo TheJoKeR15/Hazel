@@ -9,11 +9,13 @@ namespace Hazel {
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
-		OpenGLTexture2D(uint32_t width, uint32_t height, bool sRGB = false, bool HDR = false, bool bLinear = true, bool mipmaps = true);
-		OpenGLTexture2D(const std::string& path, bool sRGB = false , bool HDR = false, bool bLinear = true, bool mipmaps = true);
-		// only for depth componenet
-		OpenGLTexture2D( bool bLinear ,uint32_t width, uint32_t height, bool mipmaps = false);
+		OpenGLTexture2D(uint32_t width, uint32_t height, bool HDR);
+		OpenGLTexture2D(const std::string& path, bool bsRGB, bool bLinear);
+		// this is called when CreatEmpty() Texture2D is created meaning only stores the variables
+ 		OpenGLTexture2D(uint32_t width, uint32_t height);
 		virtual ~OpenGLTexture2D();
+
+		virtual void GenerateTexture() override;
 
 		virtual uint32_t GetWidth() const override { return m_Width;  }
 		virtual uint32_t GetHeight() const override { return m_Height; }

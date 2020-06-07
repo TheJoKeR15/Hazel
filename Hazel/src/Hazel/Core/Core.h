@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "Hazel/Renderer/TextureFormat.h"
 
 // Platform detection using predefined macros
 #ifdef _WIN32

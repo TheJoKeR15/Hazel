@@ -7,32 +7,26 @@
 
 namespace Hazel {
 
-	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height, bool sRGB, bool HDR, bool bLinear, bool mipmaps)
+	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height,bool HDR)
 		: m_Width(width), m_Height(height)
 	{
 		HZ_PROFILE_FUNCTION();
 
-		m_InternalFormat = sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
-		m_InternalFormat = HDR ? GL_RGBA16F : m_InternalFormat;
+		m_InternalFormat = HDR ? GL_RGBA32F : GL_RGBA8;
 		m_DataFormat = GL_RGBA;
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		if (false)
-		{
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		}
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool sRGB,bool HDR, bool bLinear, bool mipmaps)
+	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool bsRGB, bool bLinear)
 		
 	{
 		m_path = path;
@@ -50,44 +44,32 @@ namespace Hazel {
 		m_Height = height;
 
 		GLenum internalFormat = 0, dataFormat = 0;
-		
-		if (channels == 1)
+		switch (channels)
 		{
-			internalFormat  = dataFormat = GL_RED;
+		case(1):
+		{
+			m_Format = TEXTURE_FORMAT::RED;internalFormat = dataFormat = GL_RED;
+			break;
 		}
-
-		if (channels == 4)
+		case(3):
 		{
-			if (HDR)
-			{
-				internalFormat = GL_RGBA16F;
-			}
-			else
-			{
-				internalFormat = sRGB? GL_SRGB8_ALPHA8 : GL_RGBA8;
-			}
+			internalFormat = bsRGB ? GL_SRGB8 : GL_RGB8;
+			dataFormat = GL_RGB;
+			m_Format = bsRGB ? TEXTURE_FORMAT::sRGB : TEXTURE_FORMAT::RGB;
+			//sRGB = bsRGB;
+			break;
+		}
+		case(4):
+		{
+			internalFormat = bsRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
 			dataFormat = GL_RGBA;
-
+			m_Format = bsRGB ? TEXTURE_FORMAT::sRGBA : TEXTURE_FORMAT::RGB;
+			//sRGB = bsRGB;
+			break;
 		}
-		else if (channels == 3)
-		{
-			if (HDR)
-			{
-				internalFormat = GL_RGB16F;
-			}
-			else
-			{
-				internalFormat = sRGB ? GL_SRGB8 : GL_RGB8;
-			}
-			
-
-				dataFormat = GL_RGB;
-
+		default:
+			break;
 		}
-		
-
-
-
 		m_InternalFormat = internalFormat;
 		m_DataFormat = dataFormat;
 
@@ -114,30 +96,12 @@ namespace Hazel {
 		stbi_image_free(data);
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(bool bLinear,uint32_t width, uint32_t height, bool mipmaps)
-		: m_Width(width), m_Height(height)
+
+	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height):
+		m_Width(width),m_Height(height)
 	{
-		HZ_PROFILE_FUNCTION();
-
-		m_InternalFormat = GL_DEPTH_COMPONENT;
-		m_DataFormat = GL_DEPTH_COMPONENT;
-
-		glGenTextures(1, &m_RendererID);
-		glBindTexture(GL_TEXTURE_2D, m_RendererID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, bLinear ? GL_LINEAR : GL_NEAREST);
-
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		if (false)
-		{
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		}
+		// EMPTY TEXTURE
+		m_RendererID = 0;
 	}
 
 	OpenGLTexture2D::~OpenGLTexture2D()
@@ -145,6 +109,102 @@ namespace Hazel {
 		HZ_PROFILE_FUNCTION();
 
 		glDeleteTextures(1, &m_RendererID);
+	}
+
+	void OpenGLTexture2D::GenerateTexture()
+	{
+		switch (m_Format)
+		{
+			case(TEXTURE_FORMAT::RED):
+			{
+				m_InternalFormat = GL_RED;
+				m_DataFormat = GL_RED;
+				break;
+			}
+			case(TEXTURE_FORMAT::RGB):
+			{
+				m_InternalFormat = GL_RGB8;
+				m_DataFormat = GL_RGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::RGBA):
+			{
+				m_InternalFormat = GL_RGBA8;
+				m_DataFormat = GL_RGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::sRGB):
+			{
+				m_InternalFormat = GL_SRGB8;
+				m_DataFormat = GL_SRGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::sRGBA):
+			{
+				m_InternalFormat = GL_SRGB8_ALPHA8;
+				m_DataFormat = GL_SRGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::RGB16F):
+			{
+				m_InternalFormat = GL_RGB16F;
+				m_DataFormat = GL_RGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::RGBA16F):
+			{
+				m_InternalFormat = GL_RGBA16F;
+				m_DataFormat = GL_RGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::RGB32F):
+			{
+				m_InternalFormat = GL_RGB32F;
+				m_DataFormat = GL_RGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::RGBA32F):
+			{
+				m_InternalFormat = GL_RGBA32F;
+				m_DataFormat = GL_RGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::DEPTH8):
+			{
+				m_InternalFormat = GL_DEPTH_COMPONENT;
+				m_DataFormat = GL_RGB;
+				break;
+			}
+			case(TEXTURE_FORMAT::DEPTH16):
+			{
+				m_InternalFormat = GL_DEPTH_COMPONENT16;
+				m_DataFormat = GL_RGB;
+			}
+			case(TEXTURE_FORMAT::DEPTH32):
+			{
+				m_InternalFormat = GL_DEPTH_COMPONENT32;
+				m_DataFormat = GL_RGB;
+
+
+			default:
+				break;
+			}
+
+		}
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		// Bind the texture
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
+		//Defining the parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bLinearFiltering ? GL_LINEAR : GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bLinearFiltering ? GL_LINEAR : GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, bClamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, bClamp ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+
+		if (bGenMips) glGenerateMipmap(GL_TEXTURE_2D);
+
+		// unbind
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void OpenGLTexture2D::SetData(void* data, uint32_t size)
