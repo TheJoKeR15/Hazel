@@ -36,17 +36,17 @@ Hazel::Material::Material(Hazel::Ref<Shader> Shader, Hazel::Ref<Hazel::Texture2D
 
 void Hazel::Material::Initialization()
 {
-	//m_Shader->Bind();
+	m_Shader->Bind();
 	if (bHasAlbedoTexture)
 	{
-		m_Albedo->Bind(m_Shader->GetNextTextureSlotIndex());
-		m_Shader->SetInt("t_BaseColor", *m_Albedo->GetSlot());
+		m_Albedo->Bind();
+		m_Shader->SetInt("t_BaseColor", *m_Albedo->GetID());
 	}
 
 	if (bHasSpecularTexture)
 	{
-		m_Specular->Bind(m_Shader->GetNextTextureSlotIndex());
-		m_Shader->SetInt("t_Specular", *m_Specular->GetSlot());
+		m_Specular->Bind();
+		m_Shader->SetInt("t_Specular", *m_Specular->GetID());
 	}
 	
 	m_Shader->SetBool("bMasked", bMaseked);
@@ -58,18 +58,19 @@ void Hazel::Material::Initialization()
 
 void Hazel::Material::Update()
 {
+	m_Shader->Bind();
 	if (m_Albedo)
 	{
 		m_Shader->SetBool("bHasAlbedoTexture", true);
-		m_Albedo->ReBind();
-		m_Shader->SetInt("t_BaseColor", *m_Albedo->GetSlot());
+		m_Albedo->Bind(0);
+		m_Shader->SetInt("t_BaseColor", 0);
 	}
 
 	if (m_Specular)
 	{
 		m_Shader->SetBool("bHasSpeclarTexture", true);
-		m_Specular->ReBind();
-		m_Shader->SetInt("t_Specular", *m_Specular->GetSlot());
+		m_Specular->Bind(1);
+		m_Shader->SetInt("t_Specular", 1);
 	}
 	m_Shader->Bind();
 	m_Shader->SetBool("bMasked", bMaseked);

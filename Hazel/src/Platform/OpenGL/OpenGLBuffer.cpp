@@ -242,8 +242,15 @@ namespace Hazel {
 
 	void OpenGLFrameBuffer::AttachColorTexture2D(uint32_t& Texture, int Width, int height, int index)
 	{
+		glBindTexture(GL_TEXTURE_2D, Texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		//attach it to the framebuffer:
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, Texture, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
 	}
 
 	void OpenGLFrameBuffer::AttachDepthTexture2D(uint32_t& Texture, int Width, int height)

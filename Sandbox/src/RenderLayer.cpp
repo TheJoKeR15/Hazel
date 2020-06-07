@@ -15,7 +15,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         // setting more pleasent settings for the camera
         MainShader = m_ShaderLibrary.Load("assets/shaders/MainShader.glsl");
         SkyShader = m_ShaderLibrary.Load("assets/shaders/SkyboxShader.glsl");
-        DirectionalShadowMapShader = m_ShaderLibrary.Load("assets/shaders/DirectionalShadowMap.glsl");
+        
     }
 
     void RenderLayer::OnAttach()
@@ -66,10 +66,12 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         GetScene()->AddEnitity(new Hazel::PointLight(MainShader, 0));
         GetScene()->GetEntities()[2]->SetPosition(glm::vec3(0.f, 15.f, 3.f));
+        dynamic_cast<Hazel::Light*>(GetScene()->GetEntities()[2])->Intensity = 50000000.f;
         //GetScene()->AddEnitity(new Hazel::PointLight(MainShader, 1));
 
         GetScene()->AddEnitity(new Hazel::DirectionalLight(MainShader));
         GetScene()->GetEntities()[3]->SetRotation(glm::vec3(0.f,45.f,45.f));
+        dynamic_cast<Hazel::Light*>(GetScene()->GetEntities()[3])->Intensity = 60000.f;
 
         //GetScene()->AddEnitity(new Hazel::SpotLight(MainShader, 0));
         //m_Light = dynamic_cast<Hazel::Light*>(GetScene()->GetEntities()[6]);
@@ -85,14 +87,15 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
 
         auto SkyBox = new Hazel::Skybox(SkyShader, SkyBox_Texture);
         SkyBox->displayName = "SkyBox";
+        SkyBox->SkyIntensity = 50000.f;
 
         GetScene()->AddEnitity(new Hazel::Model("assets/Scene.obj", "Scene", ListOfMaterials[1], MainShader));
 
         GetScene()->AddEnitity(SkyBox);
 
-        GetScene()->InitializeScene(DirectionalShadowMapShader);
+        GetScene()->InitializeScene();
 
-        GetScene()->InitializeBuffers(ViewPortSize.x, ViewPortSize.y);
+        GetScene()->InitializeCommunBuffers(ViewPortSize.x, ViewPortSize.y);
     }
 
     void RenderLayer::OnDetach()
@@ -231,7 +234,7 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
         ImGui::Begin("Viewport",NULL,flags);
         if (ViewPortSize.x != ImGui::GetWindowSize().x || ViewPortSize.y != ImGui::GetWindowSize().y )
         {
-            GetScene()->InitializeBuffers(ViewPortSize.x, ViewPortSize.y);
+            GetScene()->InitializeCommunBuffers(ViewPortSize.x, ViewPortSize.y);
         }
         if (GetScene()->ShadowMapScale != lastres)
         {
@@ -461,7 +464,10 @@ RenderLayer::RenderLayer(GizmoOverlay* GizmoLayer) :Layer("Render Layer"), m_Sce
             ImGui::DragFloat("Aperture", &GetScene()->GetCameraController()->aperature,0.5f, 0.1f, 24.f, "f/ %.1f ");
             ImGui::DragFloat("ShutterSpeed", &GetScene()->GetCameraController()->ShutterSpeed, 0.1f, 01.f, 1000.f, "1/%.0f");
             ImGui::DragFloat("ISO", &GetScene()->GetCameraController()->Iso, 1.f, 100.f, 16000.f, "ISO = %.0f");
-            ImGui::DragFloat("BloomTreshold", &GetScene()->GetCameraController()->BloomTreshold, 1.f, 0.0f, 3.f, " %.3f");
+            ImGui::DragFloat("BloomTreshold", &GetScene()->GetCameraController()->BloomTreshold, 0.1f, 0.0f, 3.f, " %.3f");
+            ImGui::DragFloat("BloomIntensity", &GetScene()->bloom_Intensity, 0.1f, 0.0f, 3.f, " %.3f");
+            ImGui::DragInt("Bloom Scale", &GetScene()->bloom_scale, 1.f, 0, 8);
+            ImGui::DragInt("Bloom Iterations", (int*)&GetScene()->bloom_iterations, 1.f, 0, 15);
             ImGui::Separator();
             ImGui::SliderFloat("FOV", &GetScene()->GetCameraController()->m_FOV, 0.f, 120.f, "FOV = %.3f");
             ImGui::SliderFloat("Sensitivity", &GetScene()->GetCameraController()->GetCamera().MouseSensitivity, 0.f, 8.f, "Sensitivity = %.3f");

@@ -7,9 +7,13 @@ out vec4 FinalColor;
 in vec2 TexCoords;
 
 uniform sampler2D ExposedImage;
-uniform sampler2D BloomImage;
+uniform sampler2D BloomImage1;
+uniform sampler2D BloomImage2;
+uniform sampler2D BloomImage3;
+uniform sampler2D BloomImage4;
+uniform sampler2D BloomImage5;
 
-uniform float BloomTreshold;
+uniform float BloomIntensity;
 
 // ACES Filmic tonemaping
 vec3 ACESFilm(vec3 x);
@@ -21,11 +25,15 @@ void main()
     // Exposed Image
     vec3 col = texture(ExposedImage, TexCoords).rgb;
     //col = vec3(0.8863, 0.1569, 0.1569);
-    vec3 Bloomed = textureLod(BloomImage, TexCoords,6).rgb;
+    vec3 Bloomed = texture(BloomImage1, TexCoords).rgb;
+    Bloomed +=  texture(BloomImage2, TexCoords).rgb;
+    Bloomed +=  texture(BloomImage3, TexCoords).rgb;
+    Bloomed +=  texture(BloomImage4, TexCoords).rgb;
+    Bloomed +=  texture(BloomImage5, TexCoords).rgb;
     // Tonmapping 
-    vec3 Tonmapping = ACESFilm(col);
+    vec3 Tonmapping = ACESFilm(col+Bloomed*BloomIntensity);
     // and gamma correction
-    FinalColor.rgb = pow(col,vec3(1/2.2));
+    FinalColor.rgb = pow(Tonmapping,vec3(1/2.2));
     //FinalColor.rgb = Bloomed;
     FinalColor.a = 1.0;
 

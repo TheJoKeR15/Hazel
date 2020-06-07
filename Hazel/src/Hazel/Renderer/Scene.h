@@ -11,6 +11,7 @@
 #include "Hazel/Renderer/Buffer.h"
 #include "CameraController.h"
 #include <vector>
+//#include "Passes/Commun.h"
 
 namespace Hazel
 {
@@ -22,21 +23,29 @@ namespace Hazel
 		Scene(float Width, float Height);
 
 		~Scene();
-		void InitializeScene(Ref<Shader> ShadowPassShader);
+		void InitializeScene();
 
-		void InitializeBuffers(float ViewPortSizeX, float ViewPortSizeY);
+		void InitializeCommunBuffers(float ViewPortSizeX, float ViewPortSizeY);
 
 		void InitializeScreenQuad();
+
+		void InitializeCommunShaders();
 
 		void BeginScene();
 
 		void RenderScene(float dt);
+
+		// This is the main Render loop of the scene 
+		// SEE ComposeFinalImage.cpp
+		void RenderAllPasses();
 
 		void RenderMainPass();
 
 		void RenderShadowPass();
 
 		void RenderPostPass();
+
+		void BloomBlur();
 
 		void ComposeFinalImage();
 
@@ -74,6 +83,8 @@ namespace Hazel
 
 		float& GetAmbientLighting() { return m_AmbientLighting; };
 
+
+
 		int ShadowMapScale = 8;
 		float ShadowBias = 0.001f;
 
@@ -88,6 +99,7 @@ namespace Hazel
 	private:
 		
 		Hazel::ShaderLibrary m_ShaderLibrary;
+		Ref<Shader> m_shader;
 
 		std::vector<Entity*> Entities;
 		//std::vector<PointLight*> PointLights;
@@ -100,33 +112,7 @@ namespace Hazel
 		float m_Width, m_Height;
 		float m_AmbientLighting = 0.01f;
 
-		Ref<Shader> m_shader;
-		Ref<Shader> m_ShadowPassShader;
-		Ref<Shader> m_PostProcessShader;
-		Ref<Shader> m_CompositionShader;
-
 		glm::vec3 BackGroundColor = glm::vec3(0.1f);
-
-		uint32_t Buffer1;
-		uint32_t Buffer2;
-		uint32_t Buffer3;
-
-		Ref<Texture2D> FrameBuffertexture2D;
-		uint32_t FrameRenderBuffer;
-		Ref<FrameBuffer> FrameBuffer;
-		
-		
-		Ref<Texture2D> ExposedTexture2D;
-
-		uint32_t HDRRenderBuffer;
-		Ref<Hazel::FrameBuffer> HDRBuffer;
-
-		
-		Ref<Texture2D> BloomTexture2D;
-
-		Ref<Hazel::FrameBuffer> CompositionBuffer;
-		Ref<Texture2D> FinalImageTexture2D;
-		
 
 		float quadVertices[24] = {
 			// positions   // texCoords
@@ -138,28 +124,91 @@ namespace Hazel
 			 1.0f, -1.0f,  1.0f, 0.0f,
 			 1.0f,  1.0f,  1.0f, 1.0f
 		};
-		
-		Ref<VertexArray> m_SquareVA;
-
-		uint32_t DirectionalShadowMap;
-		Ref<Texture2D> ShadowMap;
-		Ref<Hazel::FrameBuffer> ShadowDepthBuffer;
-
-		
-
-		int  SHADOW_MAP_Width = 1024;
-		int SHADOW_MAP_Height = 1024;
-
-		float m_ViewPortSizeX;
-		float m_ViewPortSizeY;
-
-		
 
 		glm::mat4 lightView = glm::lookAt(Light,
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 		
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+
+		Ref<Shader> m_ShadowPassShader;
+		Ref<Shader> m_PostProcessShader;
+		Ref<Shader> m_CompositionShader;
+
+		uint32_t Buffer1;
+		uint32_t Buffer2;
+		uint32_t Buffer3;
+
+		Ref<Texture2D> FrameBuffertexture2D;
+		uint32_t FrameRenderBuffer;
+		Ref<FrameBuffer> MainFrameBuffer;
+
+		Ref<Texture2D> ExposedTexture2D;
+
+		uint32_t HDRRenderBuffer;
+		Ref<FrameBuffer> HDRBuffer;
+
+
+		Ref<Texture2D> BloomTexture2D;
+
+		Ref<FrameBuffer> CompositionBuffer;
+		Ref<Texture2D> FinalImageTexture2D;
+
+
+
+
+		Ref<VertexArray> m_SquareVA;
+
+		uint32_t DirectionalShadowMap;
+		Ref<Texture2D> ShadowMap;
+		Ref<Hazel::FrameBuffer> ShadowDepthBuffer;
+
+		////////////////////
+		/// BLOOM
+		////////////////////
+		public:
+		Ref<Shader> m_GaussianBlur;
+		uint32_t bloom_iterations = 10;
+		uint32_t bloom_Buffer1;
+		uint32_t bloom_Buffer2;
+
+		int bloom_scale = 8;
+		float bloom_Intensity = 1.f;
+		bool bloom_first = true;
+
+		static const int bloomSize = 5;
+		// 1/2 
+		// 1/4
+		// 1/8
+		// 1/16
+		// 1/32
+		std::array< Ref<FrameBuffer>, bloomSize> bloomDFBOs;
+		std::array< Ref<FrameBuffer>, bloomSize> bloomHFBOs;
+		std::array< Ref<FrameBuffer>, bloomSize> bloomVFBOs;
+
+		Ref<FrameBuffer> bloom_FBO1;
+		//Ref<FrameBuffer> bloom_FBO2;
+		//Ref<FrameBuffer> bloom_FBO3;
+		//Ref<FrameBuffer> bloom_FBO4;
+		//Ref<FrameBuffer> bloom_FBO5;
+		
+		std::array< Ref<Texture2D>, bloomSize> bloomDownSampled;
+		std::array< Ref<Texture2D>, bloomSize> bloomGaussiansH;
+		std::array< Ref<Texture2D>, bloomSize> bloomGaussiansV;
+
+		int DsFactors[bloomSize] = { 4,8,16,32 };
+		Ref<Texture2D> bloomDownsampl01;
+		//Ref<Texture2bloomSizeD> bloomGaussian2;
+		//Ref<Texture2D> bloomGaussian3;
+		//Ref<Texture2D> bloomGaussian4;
+		//Ref<Texture2D> bloomGaussian5;
+
+
+		const int  SHADOW_MAP_Width = 1024;
+		const int SHADOW_MAP_Height = 1024;
+
+		float m_ViewPortSizeX;
+		float m_ViewPortSizeY;
 
 	};
 

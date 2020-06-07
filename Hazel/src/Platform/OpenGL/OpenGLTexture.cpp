@@ -7,7 +7,7 @@
 
 namespace Hazel {
 
-	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height, bool sRGB, bool HDR, bool bLinear)
+	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height, bool sRGB, bool HDR, bool bLinear, bool mipmaps)
 		: m_Width(width), m_Height(height)
 	{
 		HZ_PROFILE_FUNCTION();
@@ -24,9 +24,15 @@ namespace Hazel {
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		if (false)
+		{
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		}
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool sRGB,bool HDR, bool bLinear)
+	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool sRGB,bool HDR, bool bLinear, bool mipmaps)
 		
 	{
 		m_path = path;
@@ -98,10 +104,17 @@ namespace Hazel {
 
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
 
+		if (false)
+		{
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		}
+
 		stbi_image_free(data);
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(bool bLinear,uint32_t width, uint32_t height)
+	OpenGLTexture2D::OpenGLTexture2D(bool bLinear,uint32_t width, uint32_t height, bool mipmaps)
 		: m_Width(width), m_Height(height)
 	{
 		HZ_PROFILE_FUNCTION();
@@ -118,6 +131,13 @@ namespace Hazel {
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		if (false)
+		{
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		}
 	}
 
 	OpenGLTexture2D::~OpenGLTexture2D()

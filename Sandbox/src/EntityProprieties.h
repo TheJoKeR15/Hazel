@@ -111,29 +111,33 @@ void SkyBoxProperty(Hazel::Skybox* Sky)
 
 void ShowPropertiesPanel(Hazel::Entity* SelectedEntity)
 {
-    ImGui::Begin("Properties");
-    // MODEL//
-    auto model = dynamic_cast<Hazel::Model*>(SelectedEntity);
-    auto Light = dynamic_cast<Hazel::Light*>(SelectedEntity);
-    auto Sky = dynamic_cast<Hazel::Skybox*>(SelectedEntity);
-    if (model)
+    if (SelectedEntity)
     {
-        ModelPropriety(model);
+        ImGui::Begin("Properties");
+        // MODEL//
+        auto model = dynamic_cast<Hazel::Model*>(SelectedEntity);
+        auto Light = dynamic_cast<Hazel::Light*>(SelectedEntity);
+        auto Sky = dynamic_cast<Hazel::Skybox*>(SelectedEntity);
+        if (model)
+        {
+            ModelPropriety(model);
+        }
+        //LIGHT//
+        else if (Light)
+        {
+            LightPropriety(Light);
+        }
+        //SKYBOX//      
+        else if (Sky)
+        {
+            SkyBoxProperty(Sky);
+        }
+        // NORMAL ENTITY //          
+        else
+        {
+            Transforms(SelectedEntity);
+        }
+        ImGui::End();
+
     }
-    //LIGHT//
-    else if (Light)
-    {
-        LightPropriety(Light);
-    }
-    //SKYBOX//      
-    else if (Sky)
-    {
-        SkyBoxProperty(Sky);
-    }
-    // NORMAL ENTITY //          
-    else
-    {
-        Transforms(SelectedEntity);
-    }
-    ImGui::End();
 }
