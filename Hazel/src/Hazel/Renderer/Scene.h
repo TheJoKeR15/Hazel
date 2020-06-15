@@ -2,6 +2,7 @@
 
 //#include "Hazel/Core/Core.h"
 //#include <assimp/Importer.hpp>	
+//#include "Hazel/vendor/Assimp/include/assimp/Importer.hpp"
 #include "assimp/Importer.hpp"			// C++ importer interface
 #include "assimp/scene.h"          // Output data structure
 #include "assimp/postprocess.h"    // Post processing flags
@@ -9,10 +10,11 @@
 #include "Hazel/Renderer/Entity.h"
 #include "Hazel/Renderer/Lights/Light.h"
 #include "Hazel/Renderer/Buffer.h"
+#include "Deferred Rendering/gBuffer.h"
 #include "CameraController.h"
 #include <vector>
 //#include "Passes/Commun.h"
-
+class Hazel::PointLight;
 namespace Hazel
 {
 	class Scene
@@ -50,6 +52,15 @@ namespace Hazel
 		void ComposeFinalImage();
 
 		void EndScene();
+
+		// DEFFERED RENDERING
+		//--------------------------------------------------
+		void GeometryPass();
+
+		void LightingPass();
+
+		// SCENE STUFF
+		//--------------------------------------------------
 
 		void AddEnitity(Entity* newEntinity);
 
@@ -102,7 +113,9 @@ namespace Hazel
 		Ref<Shader> m_shader;
 
 		std::vector<Entity*> Entities;
-		//std::vector<PointLight*> PointLights;
+		std::vector<PointLight*> PointLights;
+		DirectionalLight* DirLight;
+		std::vector<SpotLight*> SpotLights;
 
 		uint32_t EntityIndex = 0;
 		uint32_t PointLightIndex = 0;
@@ -131,9 +144,17 @@ namespace Hazel
 		
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 
+		Ref<gBuffer> GBuffer;
+
+		// PASSES SHADERS
+		//-----------------------------------
+		Ref<Shader> m_GeometryPassShader;
 		Ref<Shader> m_ShadowPassShader;
+		// SCREN-QUAD SHADERS
 		Ref<Shader> m_PostProcessShader;
 		Ref<Shader> m_CompositionShader;
+		Ref<Shader> m_LightPassShader;
+		//-----------------------------------
 
 		uint32_t Buffer1;
 		uint32_t Buffer2;
@@ -148,6 +169,9 @@ namespace Hazel
 		uint32_t HDRRenderBuffer;
 		Ref<FrameBuffer> HDRBuffer;
 
+		uint32_t LightPassBuffer;
+		Ref<FrameBuffer> LightPassFBO;
+		Ref<Texture2D> LightingPassTexture2D;
 
 		Ref<Texture2D> BloomTexture2D;
 

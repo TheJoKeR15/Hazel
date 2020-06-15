@@ -102,9 +102,24 @@ namespace Hazel {
 
 	void Scene::AddEnitity(Entity* newEntinity)
 	{
+		auto pointlight =	dynamic_cast<PointLight*>(newEntinity);
+		auto dirlight =		dynamic_cast<DirectionalLight*>(newEntinity);
+		auto spotlight =	dynamic_cast<SpotLight*>(newEntinity);
 		newEntinity->UniqueID = EntityIndex++;
 		
 		Entities.push_back(newEntinity);
+		if (pointlight)
+		{
+			PointLights.push_back(pointlight);
+		}
+		if (dirlight)
+		{
+			DirLight = dirlight;
+		}
+		if (spotlight)
+		{
+			SpotLights.push_back(spotlight);
+		}
 	}
 
 	//void Scene::AddPointLight(PointLight* newEntinity)

@@ -62,6 +62,7 @@ namespace Hazel {
 
 		// Format of the texture 
 		// Change this before calling SetTextureParameters()
+		// Default = RGBA
 		TEXTURE_FORMAT m_Format = TEXTURE_FORMAT::RGBA;
 
 		//// is this texture in the sRGB color space (oposit for the Linear color space)
@@ -72,12 +73,15 @@ namespace Hazel {
 
 		// Use Linear Filtering when sampling this texture ( as oposite to Nearest Filtering)
 		// @TODO : Add Anisotropic Flitering Later
+		// Default = true
 		bool bLinearFiltering = true;
 
 		// Should the GPU generate MipMaps for this Textures
+		// Default = false
 		bool bGenMips = false;
 
 		// Should this Texture Be Clamped at the border or Repeated
+		// Default = true
 		bool bClamp = true;
 	};
 

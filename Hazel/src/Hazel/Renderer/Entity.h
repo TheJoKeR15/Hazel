@@ -34,6 +34,9 @@ namespace Hazel {
 		virtual void DrawShawdowPass(Ref<Shader> ShadowPassShader) = 0;
 
 		virtual void DrawMainPass(Ref<Shader> MainPassShader) = 0;
+
+		virtual void DrawGeometryPass(Ref<Shader> GeoPassShader) = 0;
+
 		virtual void DrawMainPass() = 0;
 
 		virtual void OnEndFrame();

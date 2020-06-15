@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Hazel.h>
+
 #include "Hazel/Renderer/Model.h"
 #include "Hazel/Core/Core.h"
 
@@ -23,6 +23,8 @@ namespace Hazel
 		virtual void DrawShawdowPass(Ref<Shader> ShadowPassShader) override;
 
 		virtual void DrawMainPass(Ref<Shader> MainPassShader) override;
+
+		virtual void DrawGeometryPass(Ref<Shader> MainPassShader) override;
 		
 		virtual void DrawMainPass() override;
 

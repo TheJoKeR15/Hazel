@@ -11,8 +11,8 @@ namespace Hazel
 		HDRBuffer->Bind();
 		ClearScene();
 		m_PostProcessShader->Bind();
-		FrameBuffertexture2D->Bind(0);
-		m_PostProcessShader->SetInt("HDRImage", *FrameBuffertexture2D->GetSlot());
+		LightingPassTexture2D->Bind(0);
+		m_PostProcessShader->SetInt("HDRImage", *LightingPassTexture2D->GetSlot());
 
 		m_PostProcessShader->SetFloat("ExposureCompensation", m_CameraController.ExposureComp);
 		m_PostProcessShader->SetFloat("Aperture", m_CameraController.aperature);

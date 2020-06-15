@@ -57,8 +57,8 @@ project "Hazel"
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
-		--"%{prj.name}/vendor/Assimp/**.h",
-		--"%{prj.name}/vendor/Assimp/**.cpp",
+		"%{prj.name}/vendor/Assimp/**.h",
+		"%{prj.name}/vendor/Assimp/**.cpp",
 		"%{prj.name}/vendor/ImGuizmo/**.h",
 		"%{prj.name}/vendor/ImGuizmo/**.cpp",
 	
@@ -79,7 +79,7 @@ project "Hazel"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
-		--"%{IncludeDir.Assimp}",
+		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.ImGuizmo}"
 		
 	}
@@ -89,7 +89,7 @@ project "Hazel"
 		"GLFW",
 		"Glad",
 		"ImGui",
-	"Assimp",
+		"Assimp",
 		"opengl32.lib",
 		"assimp-vc142-mtd.lib",
 		"ImGuizmo"
@@ -138,7 +138,8 @@ project "Sandbox"
 		"Hazel/vendor/spdlog/include",
 		"Hazel/src",
 		"Hazel/vendor",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.Assimp}"
 	}
 
 	links

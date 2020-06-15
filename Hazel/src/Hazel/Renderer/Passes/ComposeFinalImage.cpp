@@ -11,6 +11,12 @@ namespace Hazel
 		RenderCommand::SetFaceCulling(false);
 
 		// Main pass
+		
+
+		GeometryPass();
+
+		LightingPass();
+
 		RenderMainPass();
 
 		//Post Process Pass

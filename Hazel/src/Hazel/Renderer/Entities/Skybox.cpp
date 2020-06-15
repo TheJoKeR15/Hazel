@@ -42,6 +42,10 @@ namespace Hazel
 	{
 	}
 
+	void Skybox::DrawGeometryPass(Ref<Shader> MainPassShader)
+	{
+	}
+
 	void Skybox::DrawMainPass()
 	{
 		if (bVisible)

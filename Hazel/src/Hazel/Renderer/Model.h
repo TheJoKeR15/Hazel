@@ -49,8 +49,10 @@ namespace Hazel {
         virtual void DrawShawdowPass(Ref<Shader> ShadowPassShader) override;
 
         virtual void DrawMainPass(Ref<Shader> MainPassShader) override;
+
         virtual void DrawMainPass() override;
 
+        virtual void DrawGeometryPass(Ref<Shader> GeoPassShader) override;
         //void Draw();
 
         //void Draw(Ref<Shader> shader);

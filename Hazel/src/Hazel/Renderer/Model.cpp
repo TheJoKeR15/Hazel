@@ -64,6 +64,35 @@ namespace Hazel {
         }
     }
 
+    void Model::DrawGeometryPass(Ref<Shader> GeoPassShader)
+    {
+        if (bVisible)
+        {
+            //RecalculateTransforms();
+            for (unsigned int i = 0; i < meshes.size(); i++)
+            {
+                auto mat = meshes[i].m_Material;
+                GeoPassShader->Bind();
+                if (mat->m_Albedo)
+                {
+                    mat->m_Albedo->Bind(0);
+                    GeoPassShader->SetInt("t_BaseColor", 0);
+                    GeoPassShader->SetBool("bHasAlbedoTexture", true);
+                }
+                if (mat->m_Specular)
+                {
+                    mat->m_Specular->Bind(1);
+                    GeoPassShader->SetInt("t_Specular", 1);
+                    GeoPassShader->SetBool("bHasSpeclarTexture", true);
+                }
+                GeoPassShader->SetFloat("SpecularStrenght", mat->SpecularIntensity);
+                GeoPassShader->SetFloat("SpecularExponent", mat->SpecularExponent);
+                GeoPassShader->SetFloat3("BasecolorTint", mat->TintBaseColor);
+                meshes[i].Draw(GeoPassShader, transform);
+            }
+        }
+    }
+
 	void Model::DrawMainPass(Ref<Shader> MainPassShader)
 	{
 

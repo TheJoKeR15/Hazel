@@ -42,6 +42,10 @@ namespace Hazel
 	{
 	}
 
+	void Light::DrawGeometryPass(Ref<Shader> MainPassShader)
+	{
+	}
+
 	void Light::DrawMainPass()
 	{
 		if (bVisible)

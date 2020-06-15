@@ -10,6 +10,9 @@ namespace Hazel
 		m_ViewPortSizeX = ViewPortSizeX;
 		m_ViewPortSizeY = ViewPortSizeY;
 
+		// Create and Init the GBuffer
+		GBuffer = std::make_shared<gBuffer>(ViewPortSizeX, ViewPortSizeY);
+
 		// Viewport Frame buffer
 		uint32_t a;
 		MainFrameBuffer = Hazel::FrameBuffer::Create(a, (int)ViewPortSizeX, (int)ViewPortSizeY);
@@ -50,6 +53,18 @@ namespace Hazel
 		HDRBuffer->DrawBuffers(2);
 		HDRBuffer->Unbind();
 
+		// LightingPass Buffers
+		LightPassFBO = FrameBuffer::Create(LightPassBuffer, (int)ViewPortSizeX, (int)ViewPortSizeY);
+		LightPassFBO->Bind();
+		LightingPassTexture2D = Texture2D::CreateEmpty((int)ViewPortSizeX, (int)ViewPortSizeY);
+		LightingPassTexture2D->m_Format = TEXTURE_FORMAT::RGBA32F;
+		LightingPassTexture2D->GenerateTexture();
+		//FinalImageTexture2D->SetID(FinalImageTexture);
+		//FinalImageTexture = CompositionBuffer->CreateColorTexture2D((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
+		LightPassFBO->AttachColorTexture2D(*LightingPassTexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY);
+		auto renderbuffer = LightPassFBO->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
+		LightPassFBO->Unbind();
+
 		// Final Composition Shader
 		//uint32_t Buffer3;
 		CompositionBuffer = Hazel::FrameBuffer::Create(Buffer3, (int)ViewPortSizeX, (int)ViewPortSizeY);
@@ -60,7 +75,7 @@ namespace Hazel
 		//FinalImageTexture2D->SetID(FinalImageTexture);
 		//FinalImageTexture = CompositionBuffer->CreateColorTexture2D((int)ViewPortSizeX, (int)ViewPortSizeY, false, true);
 		CompositionBuffer->AttachColorTexture2D(*FinalImageTexture2D->GetID(), (int)ViewPortSizeX, (int)ViewPortSizeY, 0);
-		auto renderbuffer = HDRBuffer->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
+		CompositionBuffer->CreateAndAttachRenderBuffer((int)ViewPortSizeX, (int)ViewPortSizeY);
 
 		//ExposedTexture2D->Bind(m_CompositionShader->GetNextTextureSlotIndex());
 		//BloomTexture2D->Bind(m_CompositionShader->GetNextTextureSlotIndex());
@@ -150,5 +165,8 @@ namespace Hazel
 		m_CompositionShader = m_ShaderLibrary.Load("assets/shaders/Composition.glsl");
 		m_ShadowPassShader = m_ShaderLibrary.Load("assets/shaders/DirectionalShadowMap.glsl");
 		m_GaussianBlur = m_ShaderLibrary.Load("assets/shaders/GaussianBlur.glsl");
+		m_GeometryPassShader = m_ShaderLibrary.Load("assets/shaders/Deffered/GeometryPass.glsl");
+		m_LightPassShader = m_ShaderLibrary.Load("assets/shaders/Deffered/DeferedLight.glsl");
+		
 	}
 }
